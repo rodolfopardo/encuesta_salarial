@@ -1,0 +1,11 @@
+[theme]
+# Tema claro con fondo blanco
+primaryColor="#ED1C24"  # Rojo Perfil Humano
+backgroundColor="#FFFFFF"  # Fondo blanco
+secondaryBackgroundColor="#F0F2F6"  # Gris claro para sidebar
+textColor="#262730"  # Texto oscuro
+font="sans serif"
+
+[server]
+headless = true
+port = 8501
