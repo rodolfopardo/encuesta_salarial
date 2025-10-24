@@ -210,7 +210,7 @@ def main():
                         comparativa_data.append(row)
 
                     df_comp = pd.DataFrame(comparativa_data)
-                    st.dataframe(df_comp, use_column_width=True, hide_index=True)
+                    st.dataframe(df_comp, use_container_width=True, hide_index=True)
 
                     # Mostrar brecha salarial
                     brecha = ((cargo_stats['Grande']['P50'] - cargo_stats['Pyme']['P50']) /
