@@ -6,7 +6,6 @@ Perfil Humano - 9na Edición
 import streamlit as st
 import pandas as pd
 from pathlib import Path
-from PIL import Image
 
 # Configuración de la página
 st.set_page_config(
@@ -49,14 +48,13 @@ def load_css():
     """, unsafe_allow_html=True)
 
 # Cargar logos
-@st.cache_data
 def load_logos():
     base_path = Path(__file__).parent
     logos = {}
     for logo_file in ['logo1.jpeg', 'logo2.jpeg', 'logo3.png']:
         logo_path = base_path / 'assets' / 'logos' / logo_file
         if logo_path.exists():
-            logos[logo_file] = Image.open(logo_path)
+            logos[logo_file] = str(logo_path)
     return logos
 
 # Cargar datos
