@@ -140,7 +140,7 @@ def main():
                 )
             )
 
-            st.plotly_chart(fig_rubro, use_container_width=True)
+            st.plotly_chart(fig_rubro, use_column_width=True)
 
     with col2:
         # Gráfico de tamaños mejorado
@@ -175,7 +175,7 @@ def main():
                 showlegend=True
             )
 
-            st.plotly_chart(fig_tamano, use_container_width=True)
+            st.plotly_chart(fig_tamano, use_column_width=True)
 
     st.markdown("---")
 
@@ -228,7 +228,7 @@ def main():
             # Wrap x labels
             fig_aumentos.update_xaxes(tickmode='linear')
 
-            st.plotly_chart(fig_aumentos, use_container_width=True)
+            st.plotly_chart(fig_aumentos, use_column_width=True)
 
     with col2:
         if 'cantidad_aumentos_2025' in df_filtered.columns:
@@ -256,7 +256,7 @@ def main():
             )
             fig_cant.update_layout(height=450)
 
-            st.plotly_chart(fig_cant, use_container_width=True)
+            st.plotly_chart(fig_cant, use_column_width=True)
 
     st.markdown("---")
 
@@ -294,7 +294,7 @@ def main():
                 showlegend=False
             )
 
-            st.plotly_chart(fig_rot, use_container_width=True)
+            st.plotly_chart(fig_rot, use_column_width=True)
 
     st.markdown("---")
 
@@ -334,7 +334,7 @@ def main():
                 yaxis_title=""
             )
 
-            st.plotly_chart(fig_incorp, use_container_width=True)
+            st.plotly_chart(fig_incorp, use_column_width=True)
 
     with col2:
         if 'prevision_reduccion' in df_filtered.columns:
@@ -367,7 +367,7 @@ def main():
                 yaxis_title=""
             )
 
-            st.plotly_chart(fig_reduc, use_container_width=True)
+            st.plotly_chart(fig_reduc, use_column_width=True)
 
     st.markdown("---")
 
@@ -449,7 +449,7 @@ def main():
                     yaxis_title=""
                 )
 
-                st.plotly_chart(fig_benef, use_container_width=True)
+                st.plotly_chart(fig_benef, use_column_width=True)
         else:
             st.info("No hay datos de beneficios disponibles con los filtros actuales")
 
@@ -516,7 +516,7 @@ def main():
                     yaxis_title=""
                 )
 
-                st.plotly_chart(fig_benef_tiempo, use_container_width=True)
+                st.plotly_chart(fig_benef_tiempo, use_column_width=True)
         else:
             st.info("No hay datos de beneficios de tiempo disponibles con los filtros actuales")
 

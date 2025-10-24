@@ -81,7 +81,7 @@ def main():
         col_left, col_center, col_right = st.columns([1, 2, 1])
         with col_center:
             if 'logo1.jpeg' in logos:
-                st.image(logos['logo1.jpeg'], use_container_width=True)
+                st.image(logos['logo1.jpeg'], use_column_width=True)
 
     st.markdown("---")
 

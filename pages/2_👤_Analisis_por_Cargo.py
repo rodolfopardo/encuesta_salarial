@@ -210,7 +210,7 @@ def main():
                         comparativa_data.append(row)
 
                     df_comp = pd.DataFrame(comparativa_data)
-                    st.dataframe(df_comp, use_container_width=True, hide_index=True)
+                    st.dataframe(df_comp, use_column_width=True, hide_index=True)
 
                     # Mostrar brecha salarial
                     brecha = ((cargo_stats['Grande']['P50'] - cargo_stats['Pyme']['P50']) /
@@ -264,7 +264,7 @@ def main():
                         hovermode='x unified'
                     )
 
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_column_width=True)
 
             st.markdown("---")
 
@@ -306,7 +306,7 @@ def main():
                 )
                 fig_dist.update_layout(height=400)
 
-                st.plotly_chart(fig_dist, use_container_width=True)
+                st.plotly_chart(fig_dist, use_column_width=True)
 
             st.markdown("---")
 
