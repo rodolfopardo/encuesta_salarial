@@ -536,21 +536,48 @@ def main():
         'Analistas': 'bonus_analistas'
     }
 
+    # Función para extraer número de texto como "4 sueldos", "1,5 sueldos", etc.
+    def extraer_numero_bonus(texto):
+        import re
+        if pd.isna(texto):
+            return None
+        texto = str(texto).lower()
+        # Si dice "no tenemos asignado", retornar 0
+        if 'no tenemos asignado' in texto:
+            return 0
+        # Buscar patrones como "4 sueldos", "1,5 sueldos", "1/2 sueldo"
+        # Primero buscar fracciones como 1/2
+        match_fraccion = re.search(r'(\d+)/(\d+)', texto)
+        if match_fraccion:
+            numerador = float(match_fraccion.group(1))
+            denominador = float(match_fraccion.group(2))
+            return numerador / denominador
+        # Buscar números decimales con coma o punto
+        match = re.search(r'(\d+[,.]?\d*)', texto)
+        if match:
+            numero = match.group(1).replace(',', '.')
+            return float(numero)
+        return None
+
     # Verificar si existen las columnas de bonus
     bonus_data = []
     for nivel, col_name in bonus_cols.items():
         if col_name in df_filtered.columns:
-            # Obtener valores numéricos de bonus
-            bonus_values = pd.to_numeric(df_filtered[col_name], errors='coerce').dropna()
+            # Obtener valores y convertir de texto a número
+            valores_raw = df_filtered[col_name].dropna()
+            bonus_values = valores_raw.apply(extraer_numero_bonus).dropna()
+            # Filtrar los 0 (no asignado) para el cálculo de estadísticas
+            bonus_values_sin_cero = bonus_values[bonus_values > 0]
 
-            if len(bonus_values) > 0:
+            if len(bonus_values_sin_cero) > 0:
                 bonus_data.append({
                     'Nivel': nivel,
-                    'Promedio': bonus_values.mean(),
-                    'Mediana (P50)': bonus_values.median(),
-                    'Mínimo': bonus_values.min(),
-                    'Máximo': bonus_values.max(),
-                    'Empresas': len(bonus_values)
+                    'Promedio': bonus_values_sin_cero.mean(),
+                    'Mediana (P50)': bonus_values_sin_cero.median(),
+                    'Mínimo': bonus_values_sin_cero.min(),
+                    'Máximo': bonus_values_sin_cero.max(),
+                    'Empresas': len(bonus_values_sin_cero),
+                    'Sin Bonus': (bonus_values == 0).sum()
                 })
 
     if bonus_data:
