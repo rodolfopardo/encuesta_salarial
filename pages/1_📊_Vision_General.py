@@ -280,35 +280,36 @@ def main():
 
             if len(inflacion) > 0:
                 inflacion_counts = inflacion.value_counts().reset_index()
-                inflacion_counts.columns = ['Porcentaje', 'Empresas']
+                inflacion_counts.columns = ['Inflación', 'Empresas']
 
-                # Ordenar por porcentaje
-                inflacion_counts['orden'] = inflacion_counts['Porcentaje'].apply(
-                    lambda x: float(x.replace('%', '').replace('>', '').replace('<', '').strip()) if '%' in str(x) else 999
-                )
-                inflacion_counts = inflacion_counts.sort_values('orden')
+                # Tomar los top 8 más comunes
+                inflacion_counts = inflacion_counts.head(8)
 
-                # Calcular porcentaje de empresas
-                total_empresas = inflacion_counts['Empresas'].sum()
-                inflacion_counts['Porcentaje_Empresas'] = (inflacion_counts['Empresas'] / total_empresas * 100).round(1)
-
-                fig_inflacion = px.bar(
+                # Gráfico de torta (pie chart)
+                fig_inflacion = px.pie(
                     inflacion_counts,
-                    x='Porcentaje',
-                    y='Empresas',
-                    title='Inflación Acumulada Estimada por las Empresas',
-                    color='Empresas',
-                    color_continuous_scale=['#2E5090', '#ED1C24'],
-                    custom_data=['Porcentaje_Empresas']
+                    values='Empresas',
+                    names='Inflación',
+                    title='Distribución de Inflación Estimada',
+                    color_discrete_sequence=COLOR_PALETTE,
+                    hole=0.3  # Donut chart
                 )
                 fig_inflacion.update_traces(
-                    hovertemplate='<b>Inflación: %{x}</b><br>Número de empresas: %{y}<br>Porcentaje: %{customdata[0]:.1f}%<extra></extra>'
+                    textposition='inside',
+                    textinfo='percent',
+                    hovertemplate='<b>%{label}</b><br>Empresas: %{value}<br>Porcentaje: %{percent}<extra></extra>',
+                    marker=dict(line=dict(color='white', width=2))
                 )
                 fig_inflacion.update_layout(
                     height=400,
-                    showlegend=False,
-                    xaxis_title="% de Inflación",
-                    yaxis_title="Número de Empresas"
+                    showlegend=True,
+                    legend=dict(
+                        orientation="v",
+                        yanchor="middle",
+                        y=0.5,
+                        xanchor="left",
+                        x=1.05
+                    )
                 )
 
                 st.plotly_chart(fig_inflacion, use_column_width=True)
