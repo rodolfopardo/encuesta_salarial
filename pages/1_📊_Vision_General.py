@@ -185,55 +185,62 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'aumento_salarial_2025_pct' in df_filtered.columns:
-            st.markdown("### % de Aumento Estimado para 2025")
+        if 'aumento_salarial_2025_pct' in df_filtered.columns and 'categoria_tamano' in df_filtered.columns:
+            st.markdown("### % de Aumento Estimado para 2025 (Grande vs Pyme)")
 
-            aumentos = df_filtered['aumento_salarial_2025_pct'].dropna()
-            aumento_counts = aumentos.value_counts().reset_index()
-            aumento_counts.columns = ['Rango', 'Cantidad']
-
-            # Ordenar por rango y acortar textos largos
-            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
-                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
-                     '56 - 60%', '> 60%', 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)']
+            # Preparar datos con tamaño de empresa
+            df_aumentos = df_filtered[['aumento_salarial_2025_pct', 'categoria_tamano']].dropna()
 
             # Acortar la opción larga
-            aumento_counts['Rango'] = aumento_counts['Rango'].replace({
+            df_aumentos = df_aumentos.copy()
+            df_aumentos['aumento_salarial_2025_pct'] = df_aumentos['aumento_salarial_2025_pct'].replace({
                 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)': 'Sin definir'
             })
 
-            aumento_counts['order'] = aumento_counts['Rango'].apply(
-                lambda x: order.index(x) if x in order else (order.index('No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)') if x == 'Sin definir' else 999)
+            # Crear tabla cruzada (count por rango y tamaño)
+            tabla_aumentos = pd.crosstab(
+                df_aumentos['aumento_salarial_2025_pct'],
+                df_aumentos['categoria_tamano']
             )
-            aumento_counts = aumento_counts.sort_values('order').head(10)
 
-            # Calcular porcentaje real
-            total_empresas = aumento_counts['Cantidad'].sum()
-            aumento_counts['Porcentaje'] = (aumento_counts['Cantidad'] / total_empresas * 100).round(1)
+            # Ordenar por rangos
+            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
+                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
+                     '56 - 60%', '> 60%', 'Sin definir']
 
+            # Reindexar solo con rangos que existen
+            tabla_aumentos = tabla_aumentos.reindex([r for r in order if r in tabla_aumentos.index])
+
+            # Preparar para plotly - formato largo
+            tabla_plot = tabla_aumentos.reset_index()
+            tabla_plot = tabla_plot.melt(
+                id_vars='aumento_salarial_2025_pct',
+                var_name='Tamaño',
+                value_name='Cantidad'
+            )
+
+            # Gráfico de barras apiladas (stacked)
             fig_aumentos = px.bar(
-                aumento_counts,
-                x='Rango',
+                tabla_plot,
+                x='aumento_salarial_2025_pct',
                 y='Cantidad',
+                color='Tamaño',
                 title='Distribución de Aumentos Proyectados',
-                color='Cantidad',
-                color_continuous_scale=['#FDB913', '#ED1C24'],
-                custom_data=['Porcentaje']
-            )
-            fig_aumentos.update_traces(
-                hovertemplate='<b>%{x}</b><br>Empresas: %{y}<br>Porcentaje: %{customdata[0]:.1f}%<extra></extra>'
+                color_discrete_map={'Grande': COLORS['azul'], 'Pyme': COLORS['verde']},
+                barmode='stack'  # Barras apiladas
             )
             fig_aumentos.update_layout(
-                xaxis_tickangle=0,
+                xaxis_tickangle=-45,
                 height=450,
-                showlegend=False,
                 xaxis_title="Rango de Aumento",
-                yaxis_title="Número de Empresas"
+                yaxis_title="Número de Empresas",
+                legend_title="Tamaño Empresa"
             )
-            # Wrap x labels
-            fig_aumentos.update_xaxes(tickmode='linear')
+            fig_aumentos.update_traces(
+                hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
+            )
 
-            st.plotly_chart(fig_aumentos, use_column_width=True)
+            st.plotly_chart(fig_aumentos, use_container_width=True)
 
     with col2:
         if 'cantidad_aumentos_2025' in df_filtered.columns:
