@@ -260,6 +260,93 @@ def main():
 
     st.markdown("---")
 
+    # ============ SECCIÓN 2B: INFLACIÓN Y FUENTES ============
+    st.markdown("## 📊 Inflación Acumulada e Indicadores de Aumentos")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if 'aumento_acumulado_2025' in df_filtered.columns:
+            st.markdown("### % de Inflación Acumulada (Enero-Agosto 2025)")
+
+            # Filtrar headers y valores válidos
+            inflacion = df_filtered['aumento_acumulado_2025'].dropna()
+            inflacion = inflacion[inflacion != 'aumento_acumulado_2025']  # Filtrar header
+
+            if len(inflacion) > 0:
+                inflacion_counts = inflacion.value_counts().reset_index()
+                inflacion_counts.columns = ['Porcentaje', 'Empresas']
+
+                # Ordenar por porcentaje
+                inflacion_counts['orden'] = inflacion_counts['Porcentaje'].apply(
+                    lambda x: float(x.replace('%', '').replace('>', '').replace('<', '').strip()) if '%' in str(x) else 999
+                )
+                inflacion_counts = inflacion_counts.sort_values('orden')
+
+                fig_inflacion = px.bar(
+                    inflacion_counts,
+                    x='Porcentaje',
+                    y='Empresas',
+                    title='Inflación Acumulada Estimada por las Empresas',
+                    color='Empresas',
+                    color_continuous_scale=['#2E5090', '#ED1C24']
+                )
+                fig_inflacion.update_traces(
+                    hovertemplate='<b>%{x}</b><br>Empresas: %{y}<extra></extra>'
+                )
+                fig_inflacion.update_layout(
+                    height=400,
+                    showlegend=False,
+                    xaxis_title="% de Inflación",
+                    yaxis_title="Número de Empresas"
+                )
+
+                st.plotly_chart(fig_inflacion, use_column_width=True)
+            else:
+                st.info("No hay datos de inflación disponibles con los filtros actuales")
+
+    with col2:
+        if 'indicador_aumentos' in df_filtered.columns:
+            st.markdown("### Indicadores/Fuentes para Aumentos Salariales")
+
+            # Filtrar headers y valores válidos
+            indicadores = df_filtered['indicador_aumentos'].dropna()
+            indicadores = indicadores[indicadores != 'indicador_aumentos']  # Filtrar header
+
+            if len(indicadores) > 0:
+                indicadores_counts = indicadores.value_counts().reset_index()
+                indicadores_counts.columns = ['Indicador', 'Empresas']
+
+                # Acortar textos largos
+                indicadores_counts['Indicador_corto'] = indicadores_counts['Indicador'].apply(
+                    lambda x: x[:35] + '...' if len(str(x)) > 35 else x
+                )
+
+                fig_indicadores = px.bar(
+                    indicadores_counts,
+                    y='Indicador_corto',
+                    x='Empresas',
+                    title='Fuentes/Indicadores Utilizados',
+                    color='Empresas',
+                    color_continuous_scale=['#00A651', '#FDB913'],
+                    orientation='h'
+                )
+                fig_indicadores.update_traces(
+                    hovertemplate='<b>%{y}</b><br>Empresas: %{x}<extra></extra>'
+                )
+                fig_indicadores.update_layout(
+                    height=400,
+                    showlegend=False,
+                    xaxis_title="Número de Empresas",
+                    yaxis_title=""
+                )
+
+                st.plotly_chart(fig_indicadores, use_column_width=True)
+            else:
+                st.info("No hay datos de indicadores disponibles con los filtros actuales")
+
+    st.markdown("---")
+
     # ============ SECCIÓN 3: ROTACIÓN ============
     st.markdown("## 🔄 Rotación de Personal")
 
