@@ -278,49 +278,60 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'aumento_acumulado_2025' in df_filtered.columns:
+        if 'aumento_acumulado_2025' in df_filtered.columns and 'categoria_tamano' in df_filtered.columns:
             st.markdown("### % de Inflación Acumulada (Enero-Agosto 2025)")
 
-            # Filtrar headers y valores válidos
-            inflacion = df_filtered['aumento_acumulado_2025'].dropna()
-            inflacion = inflacion[inflacion != 'aumento_acumulado_2025']  # Filtrar header
+            # Preparar datos con tamaño de empresa
+            df_inflacion = df_filtered[['aumento_acumulado_2025', 'categoria_tamano']].dropna()
+            # Filtrar header si existe
+            df_inflacion = df_inflacion[df_inflacion['aumento_acumulado_2025'] != 'aumento_acumulado_2025']
 
-            if len(inflacion) > 0:
-                inflacion_counts = inflacion.value_counts().reset_index()
-                inflacion_counts.columns = ['Inflación', 'Empresas']
+            if len(df_inflacion) > 0:
+                # Limpiar el símbolo % para ordenar numéricamente
+                df_inflacion = df_inflacion.copy()
+                df_inflacion['inflacion_num'] = df_inflacion['aumento_acumulado_2025'].str.replace('%', '').astype(float)
 
-                # Tomar los top 8 más comunes
-                inflacion_counts = inflacion_counts.head(8)
-
-                # Gráfico de torta (pie chart)
-                # Nota: Los datos ya vienen con el símbolo % desde el CSV
-                fig_inflacion = px.pie(
-                    inflacion_counts,
-                    values='Empresas',
-                    names='Inflación',
-                    title='Distribución de Inflación Estimada por las Empresas',
-                    color_discrete_sequence=COLOR_PALETTE,
-                    hole=0.3  # Donut chart
+                # Crear tabla cruzada
+                tabla_inflacion = pd.crosstab(
+                    df_inflacion['aumento_acumulado_2025'],
+                    df_inflacion['categoria_tamano']
                 )
-                fig_inflacion.update_traces(
-                    textposition='inside',
-                    textinfo='percent',
-                    hovertemplate='<b>Inflación estimada: %{label}</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
-                    marker=dict(line=dict(color='white', width=2))
+
+                # Ordenar por valor numérico
+                # Crear un índice ordenado basado en los valores numéricos
+                orden_indices = df_inflacion.groupby('aumento_acumulado_2025')['inflacion_num'].first().sort_values().index
+                tabla_inflacion = tabla_inflacion.reindex(orden_indices)
+
+                # Preparar para plotly - formato largo
+                tabla_plot = tabla_inflacion.reset_index()
+                tabla_plot = tabla_plot.melt(
+                    id_vars='aumento_acumulado_2025',
+                    var_name='Tamaño',
+                    value_name='Cantidad'
+                )
+
+                # Gráfico de barras apiladas (stacked)
+                fig_inflacion = px.bar(
+                    tabla_plot,
+                    x='aumento_acumulado_2025',
+                    y='Cantidad',
+                    color='Tamaño',
+                    title='Distribución de Inflación Estimada por las Empresas',
+                    color_discrete_map={'Grande': COLORS['azul'], 'Pyme': COLORS['verde']},
+                    barmode='stack'  # Barras apiladas
                 )
                 fig_inflacion.update_layout(
+                    xaxis_tickangle=-45,
                     height=400,
-                    showlegend=True,
-                    legend=dict(
-                        orientation="v",
-                        yanchor="middle",
-                        y=0.5,
-                        xanchor="left",
-                        x=1.05
-                    )
+                    xaxis_title="% de Inflación Estimada",
+                    yaxis_title="Número de Empresas",
+                    legend_title="Tamaño Empresa"
+                )
+                fig_inflacion.update_traces(
+                    hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
                 )
 
-                st.plotly_chart(fig_inflacion, use_column_width=True)
+                st.plotly_chart(fig_inflacion, use_container_width=True)
             else:
                 st.info("No hay datos de inflación disponibles con los filtros actuales")
 
