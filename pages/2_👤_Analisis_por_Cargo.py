@@ -14,10 +14,11 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.analytics.estadisticas import EstadisticasSalariales
+from src.utils.descripciones_cargos import get_descripcion
 
 # Configuración de página
 st.set_page_config(
-    page_title="Análisis por Cargo - Encuesta Salarial 2025",
+    page_title="Análisis por Cargo - Encuesta Salarial 2do Semestre 2025",
     page_icon="👤",
     layout="wide"
 )
@@ -313,16 +314,11 @@ def main():
         # Información adicional del cargo (basada en el nombre de la columna original)
         st.markdown("### 📝 Información del Cargo")
 
-        # Mapeo de responsabilidades (simplificado)
-        responsabilidades = {
-            'salario_ceo': "Responsabilidad de definir a dónde se va a dirigir la empresa en un corto, medio y largo plazo. Fijar objetivos que marcan el rumbo y el trabajo de la organización. Definir e implementar la estrategia de la empresa.",
-            'salario_gerente_ventas': "Responsabilidad por cumplir los objetivos y lograr el crecimiento comercial fijado por la dirección de la empresa. Diseñar e implementar el plan comercial, las acciones con los clientes, presencia en los diferentes canales.",
-            'salario_analista_contabilidad': "Responsabilidad de ejecutar y analizar el proceso completo de la contabilidad: análisis de cuentas, ingreso y pago de facturas, rendiciones de gastos, preparación de estados contables.",
-            # Agregar más según sea necesario
-        }
+        # Obtener descripción del cargo
+        descripcion_cargo = get_descripcion(cargo_seleccionado)
 
-        if cargo_seleccionado in responsabilidades:
-            st.info(responsabilidades[cargo_seleccionado])
+        if descripcion_cargo:
+            st.info(f"**{descripcion_cargo['nombre']}**: {descripcion_cargo['descripcion']}")
         else:
             st.info("Información detallada del cargo disponible en el informe completo de la encuesta.")
 
@@ -334,7 +330,7 @@ def main():
     # Footer
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 1rem 0;'>
-            <p><strong>Perfil Humano</strong> - Encuesta Salarial 1er Semestre 2025 (9na Edición)</p>
+            <p><strong>Perfil Humano</strong> - Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
         </div>
     """, unsafe_allow_html=True)
 

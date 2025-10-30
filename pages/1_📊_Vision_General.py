@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Configuración de página
 st.set_page_config(
-    page_title="Visión General - Encuesta Salarial 2025",
+    page_title="Visión General - Encuesta Salarial 2do Semestre 2025",
     page_icon="📊",
     layout="wide"
 )
@@ -522,10 +522,95 @@ def main():
 
     st.markdown("---")
 
+    # ============ SECCIÓN 6: BONIFICACIONES ============
+    st.markdown("## 🎁 Bonificaciones por Nivel Jerárquico")
+    st.markdown("Los bonus están expresados en cantidad de sueldos mensuales")
+
+    # Columnas de bonus
+    bonus_cols = {
+        'Gerente General': '🎁 Bonus GERENTE GENERAL (Los bonus estan expresados en cantidad de sueldos mensuales)',
+        'Directores': 'bonus_directores',
+        'Gerentes': 'bonus_gerentes',
+        'Jefes': 'bonus_jefes',
+        'Supervisores': 'bonus_supervisores',
+        'Analistas': 'bonus_analistas'
+    }
+
+    # Verificar si existen las columnas de bonus
+    bonus_data = []
+    for nivel, col_name in bonus_cols.items():
+        if col_name in df_filtered.columns:
+            # Obtener valores numéricos de bonus
+            bonus_values = pd.to_numeric(df_filtered[col_name], errors='coerce').dropna()
+
+            if len(bonus_values) > 0:
+                bonus_data.append({
+                    'Nivel': nivel,
+                    'Promedio': bonus_values.mean(),
+                    'Mediana (P50)': bonus_values.median(),
+                    'Mínimo': bonus_values.min(),
+                    'Máximo': bonus_values.max(),
+                    'Empresas': len(bonus_values)
+                })
+
+    if bonus_data:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Tabla de bonificaciones
+            df_bonus = pd.DataFrame(bonus_data)
+            df_bonus['Promedio'] = df_bonus['Promedio'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Mediana (P50)'] = df_bonus['Mediana (P50)'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Mínimo'] = df_bonus['Mínimo'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Máximo'] = df_bonus['Máximo'].apply(lambda x: f"{x:.1f}")
+
+            st.markdown("### Estadísticas de Bonificaciones")
+            st.dataframe(df_bonus, use_container_width=True, hide_index=True)
+
+        with col2:
+            # Gráfico de barras
+            df_bonus_plot = pd.DataFrame(bonus_data)
+
+            fig_bonus = px.bar(
+                df_bonus_plot,
+                x='Nivel',
+                y='Promedio',
+                title='Promedio de Bonificaciones por Nivel Jerárquico',
+                color='Promedio',
+                color_continuous_scale=['#FDB913', '#ED1C24'],
+                custom_data=['Empresas', 'Mediana (P50)']
+            )
+            fig_bonus.update_traces(
+                hovertemplate='<b>%{x}</b><br>Promedio: %{y:.1f} sueldos<br>Mediana: %{customdata[1]:.1f} sueldos<br>Empresas: %{customdata[0]}<extra></extra>'
+            )
+            fig_bonus.update_layout(
+                height=400,
+                showlegend=False,
+                xaxis_title="Nivel Jerárquico",
+                yaxis_title="Cantidad de Sueldos Mensuales"
+            )
+
+            st.plotly_chart(fig_bonus, use_container_width=True)
+
+        # Métricas destacadas
+        st.markdown("### 📊 Bonificaciones Destacadas")
+        cols = st.columns(len(bonus_data))
+        for idx, row in enumerate(bonus_data):
+            with cols[idx]:
+                st.metric(
+                    label=row['Nivel'],
+                    value=f"{row['Promedio']:.1f} sueldos",
+                    delta=f"{row['Empresas']} empresas"
+                )
+    else:
+        st.info("No hay datos de bonificaciones disponibles con los filtros actuales")
+
+    st.markdown("---")
+
     # Footer
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 1rem 0;'>
-            <p><strong>Perfil Humano</strong> - Encuesta Salarial 1er Semestre 2025 (9na Edición)</p>
+            <p><strong>Perfil Humano</strong> - Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
         </div>
     """, unsafe_allow_html=True)
 

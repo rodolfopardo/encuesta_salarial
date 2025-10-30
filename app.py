@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Encuesta Salarial 2025 - Perfil Humano",
+    page_title="Encuesta Salarial 2do Semestre 2025 - Perfil Humano",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,6 +44,23 @@ def load_css():
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+        /* Personalizar el título del sidebar */
+        [data-testid="stSidebarNav"] {
+            padding-top: 2rem;
+        }
+        [data-testid="stSidebarNav"]::before {
+            content: "Perfil Humano";
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2E5090;
+            padding: 1rem 1rem 0.5rem;
+            text-align: center;
+        }
+        /* Ocultar el label original "app" */
+        [data-testid="stSidebarNav"] > ul > li:first-child {
+            display: none;
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -73,7 +90,7 @@ def main():
 
     with col2:
         st.markdown('<p class="main-header">📊 Encuesta Salarial</p>', unsafe_allow_html=True)
-        st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #3D5A6C;">1er Semestre 2025 - 9na Edición</p>', unsafe_allow_html=True)
+        st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #3D5A6C;">2do Semestre 2025 - 10ma Edición</p>', unsafe_allow_html=True)
 
     # Cargar logos si existen
     logos = load_logos()
@@ -85,12 +102,51 @@ def main():
 
     st.markdown("---")
 
+    # Información sobre la encuesta anónima
+    st.markdown("""
+    <div style='background-color: #F0F2F6; padding: 1.5rem; border-radius: 10px; border-left: 5px solid #2E5090; margin-bottom: 2rem;'>
+        <h3 style='color: #2E5090; margin-top: 0;'>📋 Sobre esta Encuesta</h3>
+        <p style='font-size: 1.1rem; line-height: 1.6;'>
+            Esta encuesta salarial es de carácter <strong>ANÓNIMA, CONFIDENCIAL y GRATUITA</strong>.
+        </p>
+        <p style='font-size: 1rem; line-height: 1.6;'>
+            Tiene como objetivo poder analizar y comparar los salarios de puestos Directivos,
+            Gerenciales, Jefaturas y Analistas de las diferentes empresas de CUYO en los
+            diferentes rubros, tamaños y sectores.
+        </p>
+        <p style='font-size: 1rem; line-height: 1.6;'>
+            Estas empresas también participan de un grupo de WhatsApp donde intercambian
+            conocimientos, experiencias e información. <strong>Si querés ser parte contactanos.</strong>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Sección de contacto y servicios
+    st.markdown("""
+    <div style='background-color: #E8F4F0; padding: 1.5rem; border-radius: 10px; border-left: 5px solid #00A651; margin-bottom: 2rem;'>
+        <h3 style='color: #00A651; margin-top: 0;'>💼 ¿Te gustaría recibir asesoramiento en cómo diseñar una estrategia salarial?</h3>
+        <ul style='font-size: 1rem; line-height: 1.8;'>
+            <li>Análisis de Equidad salarial interna</li>
+            <li>Análisis de Competitividad externa</li>
+            <li>Estrategia de Pago para puestos Claves</li>
+            <li>Desarrollo de un plan de Beneficios</li>
+        </ul>
+        <p style='font-size: 1.1rem; margin-top: 1rem;'><strong>Contactanos:</strong></p>
+        <p style='font-size: 1rem; line-height: 1.6;'>
+            📧 <a href='mailto:lorena.henriquez@perfil-humano.com' style='color: #2E5090;'>lorena.henriquez@perfil-humano.com</a><br>
+            📧 <a href='mailto:gaston.kovalenko@perfil-humano.com' style='color: #2E5090;'>gaston.kovalenko@perfil-humano.com</a>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
     # Descripción
     st.markdown("""
     ### Bienvenido al Dashboard Interactivo de la Encuesta Salarial
 
-    Esta herramienta te permite explorar de manera interactiva los resultados de la **9na Edición** de la
-    Encuesta Salarial realizada por **Perfil Humano** en el 1er Semestre de 2025.
+    Esta herramienta te permite explorar de manera interactiva los resultados de la **10ma Edición** de la
+    Encuesta Salarial realizada por **Perfil Humano** en el 2do Semestre de 2025.
 
     #### 📌 ¿Qué encontrarás?
 
@@ -174,8 +230,8 @@ def main():
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 2rem 0;'>
             <p><strong>Perfil Humano - Búsquedas Estratégicas</strong></p>
-            <p>Encuesta Salarial 1er Semestre 2025 (9na Edición)</p>
-            <p style='font-size: 0.9rem;'>Dashboard interactivo desarrollado con Streamlit</p>
+            <p>Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
+            <p style='font-size: 0.9rem;'>Desarrollado por Rodolfo Pardo para Perfil Humano</p>
         </div>
     """, unsafe_allow_html=True)
 
