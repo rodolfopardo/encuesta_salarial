@@ -78,7 +78,7 @@ class EstadisticasSalariales:
             cargo_nombre = col.replace('salario_', '').replace('_', ' ').title()
             stats = self.calcular_percentiles_cargo(col)
 
-            if stats.get('General') and stats['General']['Count'] >= 5:  # Mínimo 5 respuestas
+            if stats.get('General') and stats['General']['Count'] >= 1:  # Mínimo 1 respuesta
                 self.stats_por_cargo[col] = {
                     'nombre': cargo_nombre,
                     'stats': stats

@@ -151,6 +151,10 @@ def main():
         # Título del cargo
         st.markdown(f"## {cargo_data['nombre']}")
 
+        # Advertencia si hay pocas respuestas
+        if cargo_stats.get('General') and cargo_stats['General']['Count'] < 5:
+            st.warning(f"⚠️ Este cargo tiene solo {cargo_stats['General']['Count']} respuesta(s). Los datos pueden no ser representativos del mercado.")
+
         # Métricas principales (General)
         if cargo_stats.get('General'):
             st.markdown("### 📊 Estadísticas Generales (Todas las Empresas)")
