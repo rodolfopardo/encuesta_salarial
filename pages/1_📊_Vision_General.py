@@ -285,23 +285,20 @@ def main():
                 # Tomar los top 8 más comunes
                 inflacion_counts = inflacion_counts.head(8)
 
-                # Renombrar columna para mejor claridad en la leyenda
-                inflacion_counts['Inflación_label'] = inflacion_counts['Inflación'].astype(str) + '%'
-
                 # Gráfico de torta (pie chart)
+                # Nota: Los datos ya vienen con el símbolo % desde el CSV
                 fig_inflacion = px.pie(
                     inflacion_counts,
                     values='Empresas',
-                    names='Inflación_label',
+                    names='Inflación',
                     title='Distribución de Inflación Estimada por las Empresas',
                     color_discrete_sequence=COLOR_PALETTE,
-                    hole=0.3,  # Donut chart
-                    custom_data=['Inflación']  # Pasar el valor original sin %
+                    hole=0.3  # Donut chart
                 )
                 fig_inflacion.update_traces(
                     textposition='inside',
                     textinfo='percent',
-                    hovertemplate='<b>Inflación estimada: %{customdata[0]}%</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
+                    hovertemplate='<b>Inflación estimada: %{label}</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
                     marker=dict(line=dict(color='white', width=2))
                 )
                 fig_inflacion.update_layout(
