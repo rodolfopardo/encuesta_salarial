@@ -207,16 +207,21 @@ def main():
             )
             aumento_counts = aumento_counts.sort_values('order').head(10)
 
+            # Calcular porcentaje real
+            total_empresas = aumento_counts['Cantidad'].sum()
+            aumento_counts['Porcentaje'] = (aumento_counts['Cantidad'] / total_empresas * 100).round(1)
+
             fig_aumentos = px.bar(
                 aumento_counts,
                 x='Rango',
                 y='Cantidad',
                 title='Distribución de Aumentos Proyectados',
                 color='Cantidad',
-                color_continuous_scale=['#FDB913', '#ED1C24']
+                color_continuous_scale=['#FDB913', '#ED1C24'],
+                custom_data=['Porcentaje']
             )
             fig_aumentos.update_traces(
-                hovertemplate='<b>%{x}</b><br>Empresas: %{y}<br>Porcentaje: %{y:.1f}%<extra></extra>'
+                hovertemplate='<b>%{x}</b><br>Empresas: %{y}<br>Porcentaje: %{customdata[0]:.1f}%<extra></extra>'
             )
             fig_aumentos.update_layout(
                 xaxis_tickangle=0,
