@@ -295,12 +295,13 @@ def main():
                     names='Inflación_label',
                     title='Distribución de Inflación Estimada por las Empresas',
                     color_discrete_sequence=COLOR_PALETTE,
-                    hole=0.3  # Donut chart
+                    hole=0.3,  # Donut chart
+                    custom_data=['Inflación']  # Pasar el valor original sin %
                 )
                 fig_inflacion.update_traces(
                     textposition='inside',
                     textinfo='percent',
-                    hovertemplate='<b>Inflación estimada: %{label}</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
+                    hovertemplate='<b>Inflación estimada: %{customdata[0]}%</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
                     marker=dict(line=dict(color='white', width=2))
                 )
                 fig_inflacion.update_layout(
