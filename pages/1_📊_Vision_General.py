@@ -288,16 +288,21 @@ def main():
                 )
                 inflacion_counts = inflacion_counts.sort_values('orden')
 
+                # Calcular porcentaje de empresas
+                total_empresas = inflacion_counts['Empresas'].sum()
+                inflacion_counts['Porcentaje_Empresas'] = (inflacion_counts['Empresas'] / total_empresas * 100).round(1)
+
                 fig_inflacion = px.bar(
                     inflacion_counts,
                     x='Porcentaje',
                     y='Empresas',
                     title='Inflación Acumulada Estimada por las Empresas',
                     color='Empresas',
-                    color_continuous_scale=['#2E5090', '#ED1C24']
+                    color_continuous_scale=['#2E5090', '#ED1C24'],
+                    custom_data=['Porcentaje_Empresas']
                 )
                 fig_inflacion.update_traces(
-                    hovertemplate='<b>Inflación: %{x}</b><br>Número de empresas: %{y}<extra></extra>'
+                    hovertemplate='<b>Inflación: %{x}</b><br>Número de empresas: %{y}<br>Porcentaje: %{customdata[0]:.1f}%<extra></extra>'
                 )
                 fig_inflacion.update_layout(
                     height=400,
