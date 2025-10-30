@@ -300,7 +300,7 @@ def main():
                 fig_inflacion.update_traces(
                     textposition='inside',
                     textinfo='percent',
-                    hovertemplate='<b>Inflación estimada: %{label}</b><br>Número de empresas: %{value}<br>% de empresas: %{percent}<extra></extra>',
+                    hovertemplate='<b>Inflación estimada: %{label}</b><br>Empresas: %{value}<br>% del total: %{percent}<extra></extra>',
                     marker=dict(line=dict(color='white', width=2))
                 )
                 fig_inflacion.update_layout(
