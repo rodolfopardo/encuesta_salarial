@@ -295,43 +295,65 @@ def main():
                     errors='coerce'
                 )
 
-                # Crear tabla cruzada
+                # CREAR CLUSTERS DE INFLACIÓN
+                def clasificar_inflacion(row):
+                    valor = row['inflacion_num']
+                    texto = str(row['aumento_acumulado_2025'])
+
+                    if pd.isna(valor):
+                        return 'Sin aumento'
+                    elif '>' in texto or valor > 20:
+                        return '> 20%'
+                    elif valor >= 16:
+                        return '16% - 20%'
+                    elif valor >= 8:
+                        return '8% - 15%'
+                    elif valor >= 4:
+                        return '4% - 7%'
+                    else:
+                        return 'Sin aumento'
+
+                df_inflacion['cluster'] = df_inflacion.apply(clasificar_inflacion, axis=1)
+
+                # Crear tabla cruzada con clusters
                 tabla_inflacion = pd.crosstab(
-                    df_inflacion['aumento_acumulado_2025'],
+                    df_inflacion['cluster'],
                     df_inflacion['categoria_tamano']
                 )
 
-                # Ordenar por valor numérico
-                # Crear un índice ordenado basado en los valores numéricos
-                orden_indices = df_inflacion.groupby('aumento_acumulado_2025')['inflacion_num'].first().sort_values().index
-                tabla_inflacion = tabla_inflacion.reindex(orden_indices)
+                # Ordenar clusters de menor a mayor
+                orden_clusters = ['4% - 7%', '8% - 15%', '16% - 20%', '> 20%', 'Sin aumento']
+                # Filtrar solo los que existen en los datos
+                orden_clusters = [c for c in orden_clusters if c in tabla_inflacion.index]
+                tabla_inflacion = tabla_inflacion.reindex(orden_clusters)
 
                 # Preparar para plotly - formato largo
                 tabla_plot = tabla_inflacion.reset_index()
                 tabla_plot = tabla_plot.melt(
-                    id_vars='aumento_acumulado_2025',
+                    id_vars='cluster',
                     var_name='Tamaño',
                     value_name='Cantidad'
                 )
 
-                # Gráfico de barras apiladas (stacked)
+                # Gráfico de barras agrupadas (grouped)
                 fig_inflacion = px.bar(
                     tabla_plot,
-                    x='aumento_acumulado_2025',
+                    x='cluster',
                     y='Cantidad',
                     color='Tamaño',
-                    title='Distribución de Inflación Estimada por las Empresas',
+                    title='Distribución de Inflación Estimada por las Empresas (Clusterizada)',
                     color_discrete_map={'Grande': COLORS['azul'], 'Pyme': COLORS['verde']},
-                    barmode='stack'  # Barras apiladas
+                    barmode='group',  # Barras agrupadas para mejor comparación
+                    text='Cantidad'
                 )
                 fig_inflacion.update_layout(
-                    xaxis_tickangle=-45,
                     height=400,
-                    xaxis_title="% de Inflación Estimada",
+                    xaxis_title="Rango de Inflación Estimada",
                     yaxis_title="Número de Empresas",
                     legend_title="Tamaño Empresa"
                 )
                 fig_inflacion.update_traces(
+                    textposition='outside',
                     hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
                 )
 
