@@ -289,7 +289,11 @@ def main():
             if len(df_inflacion) > 0:
                 # Limpiar el símbolo % para ordenar numéricamente
                 df_inflacion = df_inflacion.copy()
-                df_inflacion['inflacion_num'] = df_inflacion['aumento_acumulado_2025'].str.replace('%', '').astype(float)
+                # Extraer solo números, manejando casos como "> 20%" o "< 10%"
+                df_inflacion['inflacion_num'] = pd.to_numeric(
+                    df_inflacion['aumento_acumulado_2025'].str.extract(r'(\d+\.?\d*)')[0],
+                    errors='coerce'
+                )
 
                 # Crear tabla cruzada
                 tabla_inflacion = pd.crosstab(
