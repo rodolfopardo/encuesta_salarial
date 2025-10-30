@@ -182,58 +182,104 @@ def main():
     # ============ SECCIÓN 2: AUMENTOS SALARIALES ============
     st.markdown("## 💰 Proyecciones de Aumentos Salariales 2025")
 
+    # Información de inflación
+    st.info("📊 **Referencia:** Inflación acumulada Enero-Agosto 2025: **19,5%** (Fuente: INDEC)")
+
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'aumento_salarial_2025_pct' in df_filtered.columns:
-            st.markdown("### % de Aumento Estimado para 2025")
+        if 'aumento_salarial_2025_pct' in df_filtered.columns and 'categoria_tamano' in df_filtered.columns:
+            st.markdown("### % de Aumento Estimado: Grande vs Pyme")
 
-            aumentos = df_filtered['aumento_salarial_2025_pct'].dropna()
-            aumento_counts = aumentos.value_counts().reset_index()
-            aumento_counts.columns = ['Rango', 'Cantidad']
-
-            # Ordenar por rango y acortar textos largos
-            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
-                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
-                     '56 - 60%', '> 60%', 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)']
+            # Preparar datos
+            df_aumentos = df_filtered[['aumento_salarial_2025_pct', 'categoria_tamano']].dropna()
 
             # Acortar la opción larga
-            aumento_counts['Rango'] = aumento_counts['Rango'].replace({
+            df_aumentos = df_aumentos.copy()
+            df_aumentos['aumento_salarial_2025_pct'] = df_aumentos['aumento_salarial_2025_pct'].replace({
                 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)': 'Sin definir'
             })
 
-            aumento_counts['order'] = aumento_counts['Rango'].apply(
-                lambda x: order.index(x) if x in order else (order.index('No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)') if x == 'Sin definir' else 999)
+            # Crear tabla cruzada
+            tabla_aumentos = pd.crosstab(
+                df_aumentos['aumento_salarial_2025_pct'],
+                df_aumentos['categoria_tamano']
             )
-            aumento_counts = aumento_counts.sort_values('order').head(10)
 
-            # Calcular porcentaje real
-            total_empresas = aumento_counts['Cantidad'].sum()
-            aumento_counts['Porcentaje'] = (aumento_counts['Cantidad'] / total_empresas * 100).round(1)
+            # Ordenar por rangos
+            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
+                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
+                     '56 - 60%', '> 60%', 'Sin definir']
 
+            tabla_aumentos = tabla_aumentos.reindex([r for r in order if r in tabla_aumentos.index])
+
+            # Resetear index para graficar
+            tabla_plot = tabla_aumentos.reset_index()
+            tabla_plot = tabla_plot.melt(id_vars='aumento_salarial_2025_pct',
+                                          var_name='Tamaño',
+                                          value_name='Cantidad')
+
+            # Gráfico de barras agrupadas
             fig_aumentos = px.bar(
-                aumento_counts,
-                x='Rango',
+                tabla_plot,
+                x='aumento_salarial_2025_pct',
                 y='Cantidad',
-                title='Distribución de Aumentos Proyectados',
-                color='Cantidad',
-                color_continuous_scale=['#FDB913', '#ED1C24'],
-                custom_data=['Porcentaje']
-            )
-            fig_aumentos.update_traces(
-                hovertemplate='<b>%{x}</b><br>Empresas: %{y}<br>Porcentaje: %{customdata[0]:.1f}%<extra></extra>'
+                color='Tamaño',
+                title='Distribución de Aumentos: Grande vs Pyme',
+                color_discrete_map={'Grande': COLORS['grande'], 'Pyme': COLORS['pyme']},
+                barmode='group'
             )
             fig_aumentos.update_layout(
-                xaxis_tickangle=0,
+                xaxis_tickangle=-45,
                 height=450,
-                showlegend=False,
                 xaxis_title="Rango de Aumento",
-                yaxis_title="Número de Empresas"
+                yaxis_title="Número de Empresas",
+                legend_title="Tamaño Empresa"
             )
-            # Wrap x labels
-            fig_aumentos.update_xaxes(tickmode='linear')
+            fig_aumentos.update_traces(
+                hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
+            )
 
-            st.plotly_chart(fig_aumentos, use_column_width=True)
+            st.plotly_chart(fig_aumentos, use_container_width=True)
+
+            # Tabla resumen debajo
+            st.markdown("#### 📋 Conclusiones respecto a Inflación (19.5%)")
+
+            # Calcular totales y porcentajes
+            total_grande = tabla_aumentos['Grande'].sum() if 'Grande' in tabla_aumentos.columns else 0
+            total_pyme = tabla_aumentos['Pyme'].sum() if 'Pyme' in tabla_aumentos.columns else 0
+
+            # Definir categorías respecto a inflación (19.5%)
+            por_debajo_inflacion = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %']
+            por_encima_inflacion = ['21 - 25%', '26 - 30%', '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%', '56 - 60%', '> 60%']
+
+            # Calcular para Grande
+            if 'Grande' in tabla_aumentos.columns:
+                grande_debajo = tabla_aumentos.loc[tabla_aumentos.index.isin(por_debajo_inflacion), 'Grande'].sum()
+                grande_encima = tabla_aumentos.loc[tabla_aumentos.index.isin(por_encima_inflacion), 'Grande'].sum()
+                pct_grande_debajo = (grande_debajo / total_grande * 100) if total_grande > 0 else 0
+                pct_grande_encima = (grande_encima / total_grande * 100) if total_grande > 0 else 0
+            else:
+                pct_grande_debajo = pct_grande_encima = 0
+
+            # Calcular para Pyme
+            if 'Pyme' in tabla_aumentos.columns:
+                pyme_debajo = tabla_aumentos.loc[tabla_aumentos.index.isin(por_debajo_inflacion), 'Pyme'].sum()
+                pyme_encima = tabla_aumentos.loc[tabla_aumentos.index.isin(por_encima_inflacion), 'Pyme'].sum()
+                pct_pyme_debajo = (pyme_debajo / total_pyme * 100) if total_pyme > 0 else 0
+                pct_pyme_encima = (pyme_encima / total_pyme * 100) if total_pyme > 0 else 0
+            else:
+                pct_pyme_debajo = pct_pyme_encima = 0
+
+            # Crear tabla resumen
+            resumen_data = {
+                'Categoría': ['Por debajo de inflación (< 20%)', 'Por encima de inflación (≥ 21%)'],
+                'Empresas Grandes': [f'{pct_grande_debajo:.1f}%', f'{pct_grande_encima:.1f}%'],
+                'Empresas Pyme': [f'{pct_pyme_debajo:.1f}%', f'{pct_pyme_encima:.1f}%']
+            }
+
+            df_resumen = pd.DataFrame(resumen_data)
+            st.dataframe(df_resumen, use_container_width=True, hide_index=True)
 
     with col2:
         if 'cantidad_aumentos_2025' in df_filtered.columns:
