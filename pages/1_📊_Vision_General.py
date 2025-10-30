@@ -427,7 +427,7 @@ def main():
 
             if benef_data:
                 df_benef = pd.DataFrame(benef_data)
-                df_benef = df_benef.sort_values('Porcentaje', ascending=True).tail(8)
+                df_benef = df_benef.sort_values('Porcentaje', ascending=True)  # Mostrar TODOS
 
                 fig_benef = px.bar(
                     df_benef,
@@ -442,8 +442,10 @@ def main():
                 fig_benef.update_traces(
                     hovertemplate='<b>%{y}</b><br>Empresas: %{customdata[0]}<br>Porcentaje: %{x:.1f}%<extra></extra>'
                 )
+                # Altura dinámica basada en cantidad de beneficios
+                altura = max(450, len(df_benef) * 30)
                 fig_benef.update_layout(
-                    height=450,
+                    height=altura,
                     showlegend=False,
                     xaxis_title="Porcentaje de Empresas",
                     yaxis_title=""
@@ -494,7 +496,7 @@ def main():
 
             if benef_tiempo_data:
                 df_benef_tiempo = pd.DataFrame(benef_tiempo_data)
-                df_benef_tiempo = df_benef_tiempo.sort_values('Porcentaje', ascending=True).tail(8)
+                df_benef_tiempo = df_benef_tiempo.sort_values('Porcentaje', ascending=True)  # Mostrar TODOS
 
                 fig_benef_tiempo = px.bar(
                     df_benef_tiempo,
@@ -509,8 +511,10 @@ def main():
                 fig_benef_tiempo.update_traces(
                     hovertemplate='<b>%{y}</b><br>Empresas: %{customdata[0]}<br>Porcentaje: %{x:.1f}%<extra></extra>'
                 )
+                # Altura dinámica basada en cantidad de beneficios
+                altura_tiempo = max(450, len(df_benef_tiempo) * 30)
                 fig_benef_tiempo.update_layout(
-                    height=450,
+                    height=altura_tiempo,
                     showlegend=False,
                     xaxis_title="Porcentaje de Empresas",
                     yaxis_title=""
