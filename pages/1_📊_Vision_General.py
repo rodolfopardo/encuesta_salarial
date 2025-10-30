@@ -292,7 +292,7 @@ def main():
                     color_continuous_scale=['#2E5090', '#ED1C24']
                 )
                 fig_inflacion.update_traces(
-                    hovertemplate='<b>%{x}</b><br>Empresas: %{y}<extra></extra>'
+                    hovertemplate='<b>Inflación: %{x}</b><br>Número de empresas: %{y}<extra></extra>'
                 )
                 fig_inflacion.update_layout(
                     height=400,
