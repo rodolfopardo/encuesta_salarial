@@ -57,11 +57,28 @@ def load_css():
             padding: 1rem 1rem 0.5rem;
             text-align: center;
         }
-        /* Ocultar el label original "app" */
+        /* Ocultar el primer elemento de navegación (app) */
         [data-testid="stSidebarNav"] > ul > li:first-child {
-            display: none;
+            display: none !important;
         }
         </style>
+        <script>
+        // Ocultar cualquier texto "app" en el sidebar
+        function hideAppLabel() {
+            const sidebar = document.querySelector('[data-testid="stSidebar"]');
+            if (sidebar) {
+                const allText = sidebar.querySelectorAll('span, div, a');
+                allText.forEach(element => {
+                    if (element.textContent.trim().toLowerCase() === 'app') {
+                        element.style.display = 'none';
+                    }
+                });
+            }
+        }
+        // Ejecutar al cargar y después de cambios
+        document.addEventListener('DOMContentLoaded', hideAppLabel);
+        setInterval(hideAppLabel, 1000);
+        </script>
     """, unsafe_allow_html=True)
 
 # Cargar logos
