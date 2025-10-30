@@ -358,6 +358,49 @@ def main():
                 )
 
                 st.plotly_chart(fig_inflacion, use_container_width=True)
+
+                # Referencia INDEC y comparativa
+                st.markdown("---")
+                st.markdown("**📊 Inflación Acumulada según INDEC (Ene-Ago 2025): 19,5%**")
+
+                # Calcular empresas por encima y debajo del 19.5%
+                inflacion_referencia = 19.5
+
+                grande_arriba = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Grande') &
+                                                 (df_inflacion['inflacion_num'] > inflacion_referencia)])
+                grande_abajo = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Grande') &
+                                                (df_inflacion['inflacion_num'] <= inflacion_referencia)])
+
+                pyme_arriba = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Pyme') &
+                                               (df_inflacion['inflacion_num'] > inflacion_referencia)])
+                pyme_abajo = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Pyme') &
+                                              (df_inflacion['inflacion_num'] <= inflacion_referencia)])
+
+                # Mostrar en formato compacto
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.metric(
+                        label="🔵 Grandes por encima de 19,5%",
+                        value=f"{grande_arriba} empresas",
+                        delta=f"{(grande_arriba/(grande_arriba+grande_abajo)*100):.1f}%" if (grande_arriba+grande_abajo) > 0 else "0%"
+                    )
+                    st.metric(
+                        label="🔵 Grandes por debajo de 19,5%",
+                        value=f"{grande_abajo} empresas",
+                        delta=f"{(grande_abajo/(grande_arriba+grande_abajo)*100):.1f}%" if (grande_arriba+grande_abajo) > 0 else "0%"
+                    )
+                with col_b:
+                    st.metric(
+                        label="🟢 Pymes por encima de 19,5%",
+                        value=f"{pyme_arriba} empresas",
+                        delta=f"{(pyme_arriba/(pyme_arriba+pyme_abajo)*100):.1f}%" if (pyme_arriba+pyme_abajo) > 0 else "0%"
+                    )
+                    st.metric(
+                        label="🟢 Pymes por debajo de 19,5%",
+                        value=f"{pyme_abajo} empresas",
+                        delta=f"{(pyme_abajo/(pyme_arriba+pyme_abajo)*100):.1f}%" if (pyme_arriba+pyme_abajo) > 0 else "0%"
+                    )
+
             else:
                 st.info("No hay datos de inflación disponibles con los filtros actuales")
 
