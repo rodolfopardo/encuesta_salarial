@@ -56,28 +56,58 @@ def load_css():
             color: #2E5090;
             padding: 1rem 1rem 0.5rem;
             text-align: center;
+            margin-bottom: 1rem;
         }
-        /* Ocultar el primer elemento de navegación (app) */
-        [data-testid="stSidebarNav"] > ul > li:first-child {
+        /* Ocultar todos los posibles elementos que contengan "app" */
+        [data-testid="stSidebarNav"] > ul > li:first-child,
+        [data-testid="stSidebarNav"] ul li:first-child,
+        [data-testid="stSidebarNav"] a:first-child,
+        section[data-testid="stSidebar"] > div:first-child {
+            display: none !important;
+        }
+        /* Ocultar elemento padre del primer link */
+        [data-testid="stSidebarNav"] > div > ul > li:first-child {
             display: none !important;
         }
         </style>
         <script>
-        // Ocultar cualquier texto "app" en el sidebar
+        // Función más agresiva para ocultar "app"
         function hideAppLabel() {
+            // Buscar en todo el sidebar
             const sidebar = document.querySelector('[data-testid="stSidebar"]');
-            if (sidebar) {
-                const allText = sidebar.querySelectorAll('span, div, a');
-                allText.forEach(element => {
-                    if (element.textContent.trim().toLowerCase() === 'app') {
-                        element.style.display = 'none';
+            if (!sidebar) return;
+
+            // Buscar todos los elementos de texto
+            const walker = document.createTreeWalker(
+                sidebar,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            let node;
+            while(node = walker.nextNode()) {
+                if (node.textContent.trim().toLowerCase() === 'app') {
+                    // Ocultar el elemento padre
+                    let parent = node.parentElement;
+                    while (parent && parent !== sidebar) {
+                        if (parent.tagName === 'A' || parent.tagName === 'LI' || parent.tagName === 'DIV') {
+                            parent.style.display = 'none';
+                            break;
+                        }
+                        parent = parent.parentElement;
                     }
-                });
+                }
             }
         }
-        // Ejecutar al cargar y después de cambios
-        document.addEventListener('DOMContentLoaded', hideAppLabel);
-        setInterval(hideAppLabel, 1000);
+
+        // Ejecutar inmediatamente y cada 500ms
+        hideAppLabel();
+        setInterval(hideAppLabel, 500);
+
+        // También ejecutar cuando cambie el DOM
+        const observer = new MutationObserver(hideAppLabel);
+        observer.observe(document.body, { childList: true, subtree: true });
         </script>
     """, unsafe_allow_html=True)
 
