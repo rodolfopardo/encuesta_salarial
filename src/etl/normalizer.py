@@ -22,7 +22,8 @@ class EncuestaNormalizer:
     def load_data(self):
         """Carga el CSV raw"""
         print("Cargando datos...")
-        self.df_raw = pd.read_csv(self.csv_path)
+        # Cargar como strings primero para manejar formato argentino (punto=miles, coma=decimal)
+        self.df_raw = pd.read_csv(self.csv_path, dtype=str, keep_default_na=False)
         print(f"✓ Datos cargados: {self.df_raw.shape[0]} filas, {self.df_raw.shape[1]} columnas")
         return self
 
@@ -382,12 +383,30 @@ class EncuestaNormalizer:
             self.df_normalized = self.df_normalized.drop(columns=duplicated_cols)
 
         # Convertir salarios a numérico - columna por columna
+        # Manejar formato argentino: punto como separador de miles (ej: 500.000)
         salary_columns = [col for col in self.df_normalized.columns if col.startswith('salario_')]
 
         count = 0
         for col in salary_columns:
             try:
-                self.df_normalized.loc[:, col] = pd.to_numeric(self.df_normalized[col], errors='coerce')
+                # Primero convertir strings con punto como separador de miles
+                def convert_salary(val):
+                    if pd.isna(val):
+                        return np.nan
+                    if isinstance(val, (int, float)):
+                        return float(val)
+                    # Si es string, quitar puntos (separador de miles) y convertir
+                    val_str = str(val).strip()
+                    # Quitar puntos que son separadores de miles
+                    val_str = val_str.replace('.', '')
+                    # Reemplazar coma por punto si existe (separador decimal)
+                    val_str = val_str.replace(',', '.')
+                    try:
+                        return float(val_str)
+                    except:
+                        return np.nan
+
+                self.df_normalized.loc[:, col] = self.df_normalized[col].apply(convert_salary)
                 count += 1
             except Exception as e:
                 print(f"  Warning: No se pudo convertir {col}: {e}")
