@@ -1,30 +1,10 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-env/
-venv/
-ENV/
+*.so
+*.egg
 *.egg-info/
-.pytest_cache/
-
-# Streamlit
-.streamlit/secrets.toml
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-
-# Images and PDFs
-*.jpeg
-*.jpg
-*.png
-*.pdf
-
-# Config mapping (se regenera automático)
-data/config/mapeo_columnas.json
+dist/
+build/

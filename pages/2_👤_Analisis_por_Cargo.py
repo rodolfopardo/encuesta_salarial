@@ -14,10 +14,11 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.analytics.estadisticas import EstadisticasSalariales
+from src.utils.descripciones_cargos import get_descripcion
 
 # Configuración de página
 st.set_page_config(
-    page_title="Análisis por Cargo - Encuesta Salarial 2025",
+    page_title="Análisis por Cargo - Encuesta Salarial 2do Semestre 2025",
     page_icon="👤",
     layout="wide"
 )
@@ -75,6 +76,95 @@ def format_currency(value):
     if pd.isna(value):
         return "N/A"
     return f"${value:,.0f}".replace(",", ".")
+
+# PARCHE: Valores hardcodeados para 5 puestos específicos
+HARDCODED_STATS = {
+    'salario_analista_ecommerce': {
+        'nombre': 'Analista Ecommerce',
+        'Grande': {
+            'P25': 1625000,
+            'P50': 1702000,
+            'P75': 1853000,
+            'Promedio': 1776000,
+            'Count': 4
+        },
+        'Pyme': {
+            'P25': 1591001,
+            'P50': 1650000,
+            'P75': 1718000,
+            'Promedio': 1659001,
+            'Count': 4
+        }
+    },
+    'salario_analista_facturacion': {
+        'nombre': 'Analista Facturacion',
+        'Grande': {
+            'P25': 1460000,
+            'P50': 1520000,
+            'P75': 1657700,
+            'Promedio': 1548504,
+            'Count': 15
+        },
+        'Pyme': {
+            'P25': 1331847,
+            'P50': 1400000,
+            'P75': 1645500,
+            'Promedio': 1486906,
+            'Count': 14
+        }
+    },
+    'salario_jefe_salon': {
+        'nombre': 'Jefe Salon',
+        'Grande': {
+            'P25': 1889762,
+            'P50': 2040000,
+            'P75': 2117500,
+            'Promedio': 1967262,
+            'Count': 4
+        },
+        'Pyme': {
+            'P25': 1746875,
+            'P50': 1781250,
+            'P75': 1815625,
+            'Promedio': 1781250,
+            'Count': 2
+        }
+    },
+    'salario_jefe_creditos_cobranzas': {
+        'nombre': 'Jefe Creditos Cobranzas',
+        'Grande': {
+            'P25': 2600000,
+            'P50': 2600000,
+            'P75': 3567749,
+            'Promedio': 3056717,
+            'Count': 3
+        },
+        'Pyme': {
+            'P25': 2222790,
+            'P50': 2516873,
+            'P75': 2810955,
+            'Promedio': 2516873,
+            'Count': 3
+        }
+    },
+    'salario_jefe_compras': {
+        'nombre': 'Jefe Compras',
+        'Grande': {
+            'P25': 2787500,
+            'P50': 3089000,
+            'P75': 3883058,
+            'Promedio': 3350740,
+            'Count': 10
+        },
+        'Pyme': {
+            'P25': 2785028,
+            'P50': 3020918,
+            'P75': 3600000,
+            'Promedio': 3031042,
+            'Count': 6
+        }
+    }
+}
 
 def main():
     st.title("👤 Análisis Salarial por Cargo")
@@ -144,11 +234,38 @@ def main():
     # ============ CONTENIDO PRINCIPAL ============
 
     if cargo_seleccionado and cargo_seleccionado in stats.stats_por_cargo:
-        cargo_data = stats.stats_por_cargo[cargo_seleccionado]
+        # PARCHE: Usar valores hardcodeados si es uno de los 5 puestos específicos
+        if cargo_seleccionado in HARDCODED_STATS:
+            cargo_data = {
+                'nombre': HARDCODED_STATS[cargo_seleccionado]['nombre'],
+                'stats': {
+                    'Grande': HARDCODED_STATS[cargo_seleccionado]['Grande'],
+                    'Pyme': HARDCODED_STATS[cargo_seleccionado]['Pyme'],
+                    'General': {
+                        'P25': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P25'] +
+                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P25']) / 2,
+                        'P50': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P50'] +
+                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P50']) / 2,
+                        'P75': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P75'] +
+                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P75']) / 2,
+                        'Promedio': (HARDCODED_STATS[cargo_seleccionado]['Grande']['Promedio'] +
+                                    HARDCODED_STATS[cargo_seleccionado]['Pyme']['Promedio']) / 2,
+                        'Count': (HARDCODED_STATS[cargo_seleccionado]['Grande']['Count'] +
+                                 HARDCODED_STATS[cargo_seleccionado]['Pyme']['Count'])
+                    }
+                }
+            }
+        else:
+            cargo_data = stats.stats_por_cargo[cargo_seleccionado]
+
         cargo_stats = cargo_data['stats']
 
         # Título del cargo
         st.markdown(f"## {cargo_data['nombre']}")
+
+        # Advertencia si hay pocas respuestas
+        if cargo_stats.get('General') and cargo_stats['General']['Count'] < 5:
+            st.warning(f"⚠️ Este cargo tiene solo {cargo_stats['General']['Count']} respuesta(s). Los datos pueden no ser representativos del mercado.")
 
         # Métricas principales (General)
         if cargo_stats.get('General'):
@@ -264,7 +381,7 @@ def main():
                         hovermode='x unified'
                     )
 
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, use_column_width=True)
 
             st.markdown("---")
 
@@ -306,23 +423,18 @@ def main():
                 )
                 fig_dist.update_layout(height=400)
 
-                st.plotly_chart(fig_dist, use_container_width=True)
+                st.plotly_chart(fig_dist, use_column_width=True)
 
             st.markdown("---")
 
         # Información adicional del cargo (basada en el nombre de la columna original)
         st.markdown("### 📝 Información del Cargo")
 
-        # Mapeo de responsabilidades (simplificado)
-        responsabilidades = {
-            'salario_ceo': "Responsabilidad de definir a dónde se va a dirigir la empresa en un corto, medio y largo plazo. Fijar objetivos que marcan el rumbo y el trabajo de la organización. Definir e implementar la estrategia de la empresa.",
-            'salario_gerente_ventas': "Responsabilidad por cumplir los objetivos y lograr el crecimiento comercial fijado por la dirección de la empresa. Diseñar e implementar el plan comercial, las acciones con los clientes, presencia en los diferentes canales.",
-            'salario_analista_contabilidad': "Responsabilidad de ejecutar y analizar el proceso completo de la contabilidad: análisis de cuentas, ingreso y pago de facturas, rendiciones de gastos, preparación de estados contables.",
-            # Agregar más según sea necesario
-        }
+        # Obtener descripción del cargo
+        descripcion_cargo = get_descripcion(cargo_seleccionado)
 
-        if cargo_seleccionado in responsabilidades:
-            st.info(responsabilidades[cargo_seleccionado])
+        if descripcion_cargo:
+            st.info(f"**{descripcion_cargo['nombre']}**: {descripcion_cargo['descripcion']}")
         else:
             st.info("Información detallada del cargo disponible en el informe completo de la encuesta.")
 
@@ -334,7 +446,7 @@ def main():
     # Footer
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 1rem 0;'>
-            <p><strong>Perfil Humano</strong> - Encuesta Salarial 1er Semestre 2025 (9na Edición)</p>
+            <p><strong>Perfil Humano</strong> - Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
         </div>
     """, unsafe_allow_html=True)
 

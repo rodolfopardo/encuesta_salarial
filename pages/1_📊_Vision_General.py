@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Configuración de página
 st.set_page_config(
-    page_title="Visión General - Encuesta Salarial 2025",
+    page_title="Visión General - Encuesta Salarial 2do Semestre 2025",
     page_icon="📊",
     layout="wide"
 )
@@ -140,7 +140,7 @@ def main():
                 )
             )
 
-            st.plotly_chart(fig_rubro, use_container_width=True)
+            st.plotly_chart(fig_rubro, use_column_width=True)
 
     with col2:
         # Gráfico de tamaños mejorado
@@ -175,7 +175,7 @@ def main():
                 showlegend=True
             )
 
-            st.plotly_chart(fig_tamano, use_container_width=True)
+            st.plotly_chart(fig_tamano, use_column_width=True)
 
     st.markdown("---")
 
@@ -185,48 +185,60 @@ def main():
     col1, col2 = st.columns(2)
 
     with col1:
-        if 'aumento_salarial_2025_pct' in df_filtered.columns:
-            st.markdown("### % de Aumento Estimado para 2025")
+        if 'aumento_salarial_2025_pct' in df_filtered.columns and 'categoria_tamano' in df_filtered.columns:
+            st.markdown("### % de Aumento Estimado para 2025 (Grande vs Pyme)")
 
-            aumentos = df_filtered['aumento_salarial_2025_pct'].dropna()
-            aumento_counts = aumentos.value_counts().reset_index()
-            aumento_counts.columns = ['Rango', 'Cantidad']
-
-            # Ordenar por rango y acortar textos largos
-            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
-                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
-                     '56 - 60%', '> 60%', 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)']
+            # Preparar datos con tamaño de empresa
+            df_aumentos = df_filtered[['aumento_salarial_2025_pct', 'categoria_tamano']].dropna()
 
             # Acortar la opción larga
-            aumento_counts['Rango'] = aumento_counts['Rango'].replace({
+            df_aumentos = df_aumentos.copy()
+            df_aumentos['aumento_salarial_2025_pct'] = df_aumentos['aumento_salarial_2025_pct'].replace({
                 'No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)': 'Sin definir'
             })
 
-            aumento_counts['order'] = aumento_counts['Rango'].apply(
-                lambda x: order.index(x) if x in order else (order.index('No tenemos definido el aumento total para el 2025 (lo veremos mes a mes)') if x == 'Sin definir' else 999)
+            # Crear tabla cruzada (count por rango y tamaño)
+            tabla_aumentos = pd.crosstab(
+                df_aumentos['aumento_salarial_2025_pct'],
+                df_aumentos['categoria_tamano']
             )
-            aumento_counts = aumento_counts.sort_values('order').head(10)
 
-            fig_aumentos = px.bar(
-                aumento_counts,
-                x='Rango',
-                y='Cantidad',
-                title='Distribución de Aumentos Proyectados',
-                color='Cantidad',
-                color_continuous_scale=['#FDB913', '#ED1C24']
+            # Ordenar por rangos
+            order = ['< 6%', '6 - 10 %', '11 - 15%', '16 - 20 %', '21 - 25%', '26 - 30%',
+                     '31 - 35%', '36 - 40%', '41 - 45%', '46 - 50%', '51 - 55%',
+                     '56 - 60%', '> 60%', 'Sin definir']
+
+            # Reindexar solo con rangos que existen
+            tabla_aumentos = tabla_aumentos.reindex([r for r in order if r in tabla_aumentos.index])
+
+            # Preparar para plotly - formato largo
+            tabla_plot = tabla_aumentos.reset_index()
+            tabla_plot = tabla_plot.melt(
+                id_vars='aumento_salarial_2025_pct',
+                var_name='Tamaño',
+                value_name='Cantidad'
             )
-            fig_aumentos.update_traces(
-                hovertemplate='<b>%{x}</b><br>Empresas: %{y}<br>Porcentaje: %{y:.1f}%<extra></extra>'
+
+            # Gráfico de barras apiladas (stacked)
+            fig_aumentos = px.bar(
+                tabla_plot,
+                x='aumento_salarial_2025_pct',
+                y='Cantidad',
+                color='Tamaño',
+                title='Distribución de Aumentos Proyectados',
+                color_discrete_map={'Grande': COLORS['azul'], 'Pyme': COLORS['verde']},
+                barmode='stack'  # Barras apiladas
             )
             fig_aumentos.update_layout(
-                xaxis_tickangle=0,
+                xaxis_tickangle=-45,
                 height=450,
-                showlegend=False,
                 xaxis_title="Rango de Aumento",
-                yaxis_title="Número de Empresas"
+                yaxis_title="Número de Empresas",
+                legend_title="Tamaño Empresa"
             )
-            # Wrap x labels
-            fig_aumentos.update_xaxes(tickmode='linear')
+            fig_aumentos.update_traces(
+                hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
+            )
 
             st.plotly_chart(fig_aumentos, use_container_width=True)
 
@@ -256,7 +268,181 @@ def main():
             )
             fig_cant.update_layout(height=450)
 
-            st.plotly_chart(fig_cant, use_container_width=True)
+            st.plotly_chart(fig_cant, use_column_width=True)
+
+    st.markdown("---")
+
+    # ============ SECCIÓN 2B: INFLACIÓN Y FUENTES ============
+    st.markdown("## 📊 Inflación Acumulada e Indicadores de Aumentos")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if 'aumento_acumulado_2025' in df_filtered.columns and 'categoria_tamano' in df_filtered.columns:
+            st.markdown("### % de Inflación Acumulada (Enero-Agosto 2025)")
+
+            # Preparar datos con tamaño de empresa
+            df_inflacion = df_filtered[['aumento_acumulado_2025', 'categoria_tamano']].dropna()
+            # Filtrar header si existe
+            df_inflacion = df_inflacion[df_inflacion['aumento_acumulado_2025'] != 'aumento_acumulado_2025']
+
+            if len(df_inflacion) > 0:
+                # Limpiar el símbolo % para ordenar numéricamente
+                df_inflacion = df_inflacion.copy()
+                # Extraer solo números, manejando casos como "> 20%" o "< 10%"
+                df_inflacion['inflacion_num'] = pd.to_numeric(
+                    df_inflacion['aumento_acumulado_2025'].str.extract(r'(\d+\.?\d*)')[0],
+                    errors='coerce'
+                )
+
+                # CREAR CLUSTERS DE INFLACIÓN
+                def clasificar_inflacion(row):
+                    valor = row['inflacion_num']
+                    texto = str(row['aumento_acumulado_2025'])
+
+                    if pd.isna(valor):
+                        return 'Sin aumento'
+                    elif '>' in texto or valor > 20:
+                        return '> 20%'
+                    elif valor >= 16:
+                        return '16% - 20%'
+                    elif valor >= 8:
+                        return '8% - 15%'
+                    elif valor >= 4:
+                        return '4% - 7%'
+                    else:
+                        return 'Sin aumento'
+
+                df_inflacion['cluster'] = df_inflacion.apply(clasificar_inflacion, axis=1)
+
+                # Crear tabla cruzada con clusters
+                tabla_inflacion = pd.crosstab(
+                    df_inflacion['cluster'],
+                    df_inflacion['categoria_tamano']
+                )
+
+                # Ordenar clusters de menor a mayor
+                orden_clusters = ['4% - 7%', '8% - 15%', '16% - 20%', '> 20%', 'Sin aumento']
+                # Filtrar solo los que existen en los datos
+                orden_clusters = [c for c in orden_clusters if c in tabla_inflacion.index]
+                tabla_inflacion = tabla_inflacion.reindex(orden_clusters)
+
+                # Preparar para plotly - formato largo
+                tabla_plot = tabla_inflacion.reset_index()
+                tabla_plot = tabla_plot.melt(
+                    id_vars='cluster',
+                    var_name='Tamaño',
+                    value_name='Cantidad'
+                )
+
+                # Gráfico de barras agrupadas (grouped)
+                fig_inflacion = px.bar(
+                    tabla_plot,
+                    x='cluster',
+                    y='Cantidad',
+                    color='Tamaño',
+                    title='Distribución de Inflación Estimada por las Empresas (Clusterizada)',
+                    color_discrete_map={'Grande': COLORS['azul'], 'Pyme': COLORS['verde']},
+                    barmode='group',  # Barras agrupadas para mejor comparación
+                    text='Cantidad'
+                )
+                fig_inflacion.update_layout(
+                    height=400,
+                    xaxis_title="Rango de Inflación Estimada",
+                    yaxis_title="Número de Empresas",
+                    legend_title="Tamaño Empresa"
+                )
+                fig_inflacion.update_traces(
+                    textposition='outside',
+                    hovertemplate='<b>%{x}</b><br>%{fullData.name}: %{y} empresas<extra></extra>'
+                )
+
+                st.plotly_chart(fig_inflacion, use_container_width=True)
+
+                # Referencia INDEC y comparativa
+                st.markdown("---")
+                st.markdown("**📊 Inflación Acumulada según INDEC (Ene-Ago 2025): 19,5%**")
+
+                # Calcular empresas por encima y debajo del 19.5%
+                inflacion_referencia = 19.5
+
+                grande_arriba = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Grande') &
+                                                 (df_inflacion['inflacion_num'] > inflacion_referencia)])
+                grande_abajo = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Grande') &
+                                                (df_inflacion['inflacion_num'] <= inflacion_referencia)])
+
+                pyme_arriba = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Pyme') &
+                                               (df_inflacion['inflacion_num'] > inflacion_referencia)])
+                pyme_abajo = len(df_inflacion[(df_inflacion['categoria_tamano'] == 'Pyme') &
+                                              (df_inflacion['inflacion_num'] <= inflacion_referencia)])
+
+                # Mostrar en formato compacto
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.metric(
+                        label="🔵 Grandes por encima de 19,5%",
+                        value=f"{grande_arriba} empresas",
+                        delta=f"{(grande_arriba/(grande_arriba+grande_abajo)*100):.1f}%" if (grande_arriba+grande_abajo) > 0 else "0%"
+                    )
+                    st.metric(
+                        label="🔵 Grandes por debajo de 19,5%",
+                        value=f"{grande_abajo} empresas",
+                        delta=f"{(grande_abajo/(grande_arriba+grande_abajo)*100):.1f}%" if (grande_arriba+grande_abajo) > 0 else "0%"
+                    )
+                with col_b:
+                    st.metric(
+                        label="🟢 Pymes por encima de 19,5%",
+                        value=f"{pyme_arriba} empresas",
+                        delta=f"{(pyme_arriba/(pyme_arriba+pyme_abajo)*100):.1f}%" if (pyme_arriba+pyme_abajo) > 0 else "0%"
+                    )
+                    st.metric(
+                        label="🟢 Pymes por debajo de 19,5%",
+                        value=f"{pyme_abajo} empresas",
+                        delta=f"{(pyme_abajo/(pyme_arriba+pyme_abajo)*100):.1f}%" if (pyme_arriba+pyme_abajo) > 0 else "0%"
+                    )
+
+            else:
+                st.info("No hay datos de inflación disponibles con los filtros actuales")
+
+    with col2:
+        if 'indicador_aumentos' in df_filtered.columns:
+            st.markdown("### Indicadores/Fuentes para Aumentos Salariales")
+
+            # Filtrar headers y valores válidos
+            indicadores = df_filtered['indicador_aumentos'].dropna()
+            indicadores = indicadores[indicadores != 'indicador_aumentos']  # Filtrar header
+
+            if len(indicadores) > 0:
+                indicadores_counts = indicadores.value_counts().reset_index()
+                indicadores_counts.columns = ['Indicador', 'Empresas']
+
+                # Acortar textos largos
+                indicadores_counts['Indicador_corto'] = indicadores_counts['Indicador'].apply(
+                    lambda x: x[:35] + '...' if len(str(x)) > 35 else x
+                )
+
+                fig_indicadores = px.bar(
+                    indicadores_counts,
+                    y='Indicador_corto',
+                    x='Empresas',
+                    title='Fuentes/Indicadores Utilizados',
+                    color='Empresas',
+                    color_continuous_scale=['#00A651', '#FDB913'],
+                    orientation='h'
+                )
+                fig_indicadores.update_traces(
+                    hovertemplate='<b>%{y}</b><br>Empresas: %{x}<extra></extra>'
+                )
+                fig_indicadores.update_layout(
+                    height=400,
+                    showlegend=False,
+                    xaxis_title="Número de Empresas",
+                    yaxis_title=""
+                )
+
+                st.plotly_chart(fig_indicadores, use_column_width=True)
+            else:
+                st.info("No hay datos de indicadores disponibles con los filtros actuales")
 
     st.markdown("---")
 
@@ -294,7 +480,7 @@ def main():
                 showlegend=False
             )
 
-            st.plotly_chart(fig_rot, use_container_width=True)
+            st.plotly_chart(fig_rot, use_column_width=True)
 
     st.markdown("---")
 
@@ -334,7 +520,7 @@ def main():
                 yaxis_title=""
             )
 
-            st.plotly_chart(fig_incorp, use_container_width=True)
+            st.plotly_chart(fig_incorp, use_column_width=True)
 
     with col2:
         if 'prevision_reduccion' in df_filtered.columns:
@@ -367,7 +553,7 @@ def main():
                 yaxis_title=""
             )
 
-            st.plotly_chart(fig_reduc, use_container_width=True)
+            st.plotly_chart(fig_reduc, use_column_width=True)
 
     st.markdown("---")
 
@@ -427,7 +613,7 @@ def main():
 
             if benef_data:
                 df_benef = pd.DataFrame(benef_data)
-                df_benef = df_benef.sort_values('Porcentaje', ascending=True).tail(8)
+                df_benef = df_benef.sort_values('Porcentaje', ascending=True)  # Mostrar TODOS
 
                 fig_benef = px.bar(
                     df_benef,
@@ -442,14 +628,16 @@ def main():
                 fig_benef.update_traces(
                     hovertemplate='<b>%{y}</b><br>Empresas: %{customdata[0]}<br>Porcentaje: %{x:.1f}%<extra></extra>'
                 )
+                # Altura dinámica basada en cantidad de beneficios
+                altura = max(450, len(df_benef) * 30)
                 fig_benef.update_layout(
-                    height=450,
+                    height=altura,
                     showlegend=False,
                     xaxis_title="Porcentaje de Empresas",
                     yaxis_title=""
                 )
 
-                st.plotly_chart(fig_benef, use_container_width=True)
+                st.plotly_chart(fig_benef, use_column_width=True)
         else:
             st.info("No hay datos de beneficios disponibles con los filtros actuales")
 
@@ -494,7 +682,7 @@ def main():
 
             if benef_tiempo_data:
                 df_benef_tiempo = pd.DataFrame(benef_tiempo_data)
-                df_benef_tiempo = df_benef_tiempo.sort_values('Porcentaje', ascending=True).tail(8)
+                df_benef_tiempo = df_benef_tiempo.sort_values('Porcentaje', ascending=True)  # Mostrar TODOS
 
                 fig_benef_tiempo = px.bar(
                     df_benef_tiempo,
@@ -509,23 +697,137 @@ def main():
                 fig_benef_tiempo.update_traces(
                     hovertemplate='<b>%{y}</b><br>Empresas: %{customdata[0]}<br>Porcentaje: %{x:.1f}%<extra></extra>'
                 )
+                # Altura dinámica basada en cantidad de beneficios
+                altura_tiempo = max(450, len(df_benef_tiempo) * 30)
                 fig_benef_tiempo.update_layout(
-                    height=450,
+                    height=altura_tiempo,
                     showlegend=False,
                     xaxis_title="Porcentaje de Empresas",
                     yaxis_title=""
                 )
 
-                st.plotly_chart(fig_benef_tiempo, use_container_width=True)
+                st.plotly_chart(fig_benef_tiempo, use_column_width=True)
         else:
             st.info("No hay datos de beneficios de tiempo disponibles con los filtros actuales")
+
+    st.markdown("---")
+
+    # ============ SECCIÓN 6: BONIFICACIONES ============
+    st.markdown("## 🎁 Bonificaciones por Nivel Jerárquico")
+    st.markdown("Los bonus están expresados en cantidad de sueldos mensuales")
+
+    # Columnas de bonus
+    bonus_cols = {
+        'Gerente General': '🎁 Bonus GERENTE GENERAL (Los bonus estan expresados en cantidad de sueldos mensuales)',
+        'Directores': 'bonus_directores',
+        'Gerentes': 'bonus_gerentes',
+        'Jefes': 'bonus_jefes',
+        'Supervisores': 'bonus_supervisores',
+        'Analistas': 'bonus_analistas'
+    }
+
+    # Función para extraer número de texto como "4 sueldos", "1,5 sueldos", etc.
+    def extraer_numero_bonus(texto):
+        import re
+        if pd.isna(texto):
+            return None
+        texto = str(texto).lower()
+        # Si dice "no tenemos asignado", retornar 0
+        if 'no tenemos asignado' in texto:
+            return 0
+        # Buscar patrones como "4 sueldos", "1,5 sueldos", "1/2 sueldo"
+        # Primero buscar fracciones como 1/2
+        match_fraccion = re.search(r'(\d+)/(\d+)', texto)
+        if match_fraccion:
+            numerador = float(match_fraccion.group(1))
+            denominador = float(match_fraccion.group(2))
+            return numerador / denominador
+        # Buscar números decimales con coma o punto
+        match = re.search(r'(\d+[,.]?\d*)', texto)
+        if match:
+            numero = match.group(1).replace(',', '.')
+            return float(numero)
+        return None
+
+    # Verificar si existen las columnas de bonus
+    bonus_data = []
+    for nivel, col_name in bonus_cols.items():
+        if col_name in df_filtered.columns:
+            # Obtener valores y convertir de texto a número
+            valores_raw = df_filtered[col_name].dropna()
+            bonus_values = valores_raw.apply(extraer_numero_bonus).dropna()
+            # Filtrar los 0 (no asignado) para el cálculo de estadísticas
+            bonus_values_sin_cero = bonus_values[bonus_values > 0]
+
+            if len(bonus_values_sin_cero) > 0:
+                bonus_data.append({
+                    'Nivel': nivel,
+                    'Promedio': bonus_values_sin_cero.mean(),
+                    'Mediana (P50)': bonus_values_sin_cero.median(),
+                    'Mínimo': bonus_values_sin_cero.min(),
+                    'Máximo': bonus_values_sin_cero.max(),
+                    'Empresas': len(bonus_values_sin_cero),
+                    'Sin Bonus': (bonus_values == 0).sum()
+                })
+
+    if bonus_data:
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Tabla de bonificaciones
+            df_bonus = pd.DataFrame(bonus_data)
+            df_bonus['Promedio'] = df_bonus['Promedio'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Mediana (P50)'] = df_bonus['Mediana (P50)'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Mínimo'] = df_bonus['Mínimo'].apply(lambda x: f"{x:.1f}")
+            df_bonus['Máximo'] = df_bonus['Máximo'].apply(lambda x: f"{x:.1f}")
+
+            st.markdown("### Estadísticas de Bonificaciones")
+            st.dataframe(df_bonus, use_container_width=True, hide_index=True)
+
+        with col2:
+            # Gráfico de barras
+            df_bonus_plot = pd.DataFrame(bonus_data)
+
+            fig_bonus = px.bar(
+                df_bonus_plot,
+                x='Nivel',
+                y='Promedio',
+                title='Promedio de Bonificaciones por Nivel Jerárquico',
+                color='Promedio',
+                color_continuous_scale=['#FDB913', '#ED1C24'],
+                custom_data=['Empresas', 'Mediana (P50)']
+            )
+            fig_bonus.update_traces(
+                hovertemplate='<b>%{x}</b><br>Promedio: %{y:.1f} sueldos<br>Mediana: %{customdata[1]:.1f} sueldos<br>Empresas: %{customdata[0]}<extra></extra>'
+            )
+            fig_bonus.update_layout(
+                height=400,
+                showlegend=False,
+                xaxis_title="Nivel Jerárquico",
+                yaxis_title="Cantidad de Sueldos Mensuales"
+            )
+
+            st.plotly_chart(fig_bonus, use_container_width=True)
+
+        # Métricas destacadas
+        st.markdown("### 📊 Bonificaciones Destacadas")
+        cols = st.columns(len(bonus_data))
+        for idx, row in enumerate(bonus_data):
+            with cols[idx]:
+                st.metric(
+                    label=row['Nivel'],
+                    value=f"{row['Promedio']:.1f} sueldos",
+                    delta=f"{row['Empresas']} empresas"
+                )
+    else:
+        st.info("No hay datos de bonificaciones disponibles con los filtros actuales")
 
     st.markdown("---")
 
     # Footer
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 1rem 0;'>
-            <p><strong>Perfil Humano</strong> - Encuesta Salarial 1er Semestre 2025 (9na Edición)</p>
+            <p><strong>Perfil Humano</strong> - Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
         </div>
     """, unsafe_allow_html=True)
 
