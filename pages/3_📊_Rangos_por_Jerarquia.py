@@ -68,7 +68,7 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
                 'Count': 78
             },
             'JEFE': {
-                'P25': 5326035,
+                'P25': 2579559,
                 'P50': 2975854,
                 'P75': 3541814,
                 'Promedio': 3266197,
@@ -98,7 +98,7 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
                 'Count': 98
             },
             'JEFE': {
-                'P25': 1920663,
+                'P25': 1924663,
                 'P50': 2337282,
                 'P75': 2750342,
                 'Promedio': 2355676,
