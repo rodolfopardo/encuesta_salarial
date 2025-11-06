@@ -22,8 +22,8 @@ class EncuestaNormalizer:
     def load_data(self):
         """Carga el CSV raw"""
         print("Cargando datos...")
-        # Cargar como strings primero para manejar formato argentino (punto=miles, coma=decimal)
-        self.df_raw = pd.read_csv(self.csv_path, dtype=str, keep_default_na=False)
+        # Cargar con separador ; (punto y coma) y como strings para manejar formato argentino
+        self.df_raw = pd.read_csv(self.csv_path, sep=';', dtype=str, keep_default_na=False)
         print(f"✓ Datos cargados: {self.df_raw.shape[0]} filas, {self.df_raw.shape[1]} columnas")
         return self
 
@@ -422,16 +422,14 @@ class EncuestaNormalizer:
         """Limpia y prepara los datos"""
         print("\nLimpiando datos...")
 
-        # Reemplazar 0 con NaN en salarios (0 = no tienen ese puesto) - columna por columna
-        salary_columns = [col for col in self.df_normalized.columns if col.startswith('salario_')]
-        for col in salary_columns:
-            self.df_normalized.loc[:, col] = self.df_normalized[col].replace(0, np.nan)
+        # NO reemplazar 0 con NaN - los 0 son valores válidos en nuevadata.csv
+        # (representan empresas que sí tienen el puesto pero con sueldo 0 o dato faltante)
 
-        # Clasificación por tamaño:
-        # Filas 1-20 (índices 0-19): Grande
-        # Filas 21+ (índices 20+): Pyme
+        # Clasificación por tamaño (según nuevadata.csv):
+        # Filas 1-18 (índices 0-17): Grande (18 empresas)
+        # Filas 19+ (índices 18+): Pyme (50 empresas)
         self.df_normalized['categoria_tamano'] = 'Pyme'  # Por defecto todas son Pyme
-        self.df_normalized.loc[0:19, 'categoria_tamano'] = 'Grande'  # Primeras 20 filas son Grande
+        self.df_normalized.loc[0:17, 'categoria_tamano'] = 'Grande'  # Primeras 18 filas son Grande
 
         # Limpiar y unificar rubros
         if 'rubro' in self.df_normalized.columns:
