@@ -48,9 +48,8 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
         'DIRECTOR': [
             'salario_director_comercial',
             'salario_director_admin_finanzas',
-            'salario_director_rrhh',
             'salario_director_operaciones',
-            'salario_director_it'  # Corregido: era 'sistemas'
+            'salario_director_it'
         ],
         'GERENTE': [
             'salario_gerente_ventas',
