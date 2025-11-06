@@ -42,7 +42,7 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
     """
     Calcula estadísticas por jerarquía (CEO, Director, Gerente, Jefe)
     """
-    # Mapeo de cargos por jerarquía
+    # Mapeo de cargos por jerarquía (nombres correctos según columnas del CSV)
     jerarquias = {
         'CEO': ['salario_ceo'],
         'DIRECTOR': [
@@ -50,31 +50,53 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
             'salario_director_admin_finanzas',
             'salario_director_rrhh',
             'salario_director_operaciones',
-            'salario_director_sistemas'
+            'salario_director_it'  # Corregido: era 'sistemas'
         ],
         'GERENTE': [
             'salario_gerente_ventas',
-            'salario_gerente_comercial',
-            'salario_gerente_admin',
-            'salario_gerente_finanzas',
+            'salario_gerente_admin_conta',  # Corregido: era 'admin'
             'salario_gerente_rrhh',
-            'salario_gerente_operaciones',
-            'salario_gerente_produccion',
-            'salario_gerente_sistemas',
+            'salario_gerente_planta',  # Corregido: era 'operaciones' y 'produccion'
+            'salario_gerente_it',  # Corregido: era 'sistemas'
             'salario_gerente_marketing',
-            'salario_gerente_logistica'
+            'salario_gerente_supply_chain',  # Corregido: era 'logistica'
+            'salario_gerente_enologia',
+            'salario_gerente_agricola',
+            'salario_gerente_compras',
+            'salario_gerente_mantenimiento',
+            'salario_gerente_calidad',
+            'salario_gerente_comex',
+            'salario_gerente_ops_hotel',
+            'salario_gerente_seguridad'
         ],
         'JEFE': [
             'salario_jefe_ventas',
-            'salario_jefe_admin',
-            'salario_jefe_contabilidad',
+            'salario_jefe_admin_conta',  # Corregido
             'salario_jefe_rrhh',
             'salario_jefe_compras',
-            'salario_jefe_sistemas',
+            'salario_jefe_desarrollo',  # Corregido: IT, era 'sistemas'
             'salario_jefe_marketing',
             'salario_jefe_produccion',
             'salario_jefe_logistica',
-            'salario_jefe_deposito'
+            'salario_jefe_finanzas',
+            'salario_jefe_impuestos',
+            'salario_jefe_creditos_cobranzas',
+            'salario_jefe_control_gestion',
+            'salario_jefe_bodega',
+            'salario_jefe_laboratorio',
+            'salario_jefe_planificacion',
+            'salario_jefe_mantenimiento',
+            'salario_jefe_calidad',
+            'salario_jefe_seguridad',
+            'salario_jefe_ingenieria',
+            'salario_jefe_obra',
+            'salario_jefe_seleccion',
+            'salario_jefe_hospitalidad',
+            'salario_jefe_alimentos_bebidas',
+            'salario_jefe_salon',
+            'salario_jefe_recepcion_hotel',
+            'salario_jefe_redes',
+            'salario_jefe_soporte'
         ]
     }
 
@@ -91,6 +113,8 @@ def calcular_estadisticas_jerarquia(df, categoria_tamano=None):
         for col in columnas:
             if col in df_filtrado.columns:
                 valores = pd.to_numeric(df_filtrado[col], errors='coerce').dropna()
+                # Filtrar valores > 0 (0 = dato faltante)
+                valores = valores[valores > 0]
                 salarios.extend(valores.tolist())
 
         if salarios:
