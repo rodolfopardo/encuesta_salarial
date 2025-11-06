@@ -49,7 +49,7 @@ CARGOS_MAPPING = {
 
 # Áreas funcionales para organizar cargos (según clusterización actualizada)
 AREAS_FUNCIONALES = {
-    'Gerencia General': ['ceo'],
+    'Gerencia General': ['ceo', 'asistente_gg'],
     'Comercial': ['director_comercial', 'gerente_ventas', 'jefe_ventas', 'ejecutivo_ventas',
                   'analista_facturacion', 'atencion_cliente'],
     'Comercio Exterior': ['gerente_comex', 'responsable_comex', 'asistente_comex'],

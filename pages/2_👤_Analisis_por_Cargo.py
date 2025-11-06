@@ -194,7 +194,7 @@ def main():
         # Selector de área funcional (clusterización actualizada - 15 áreas)
         areas = {
             'Todos los Cargos': cargos_disponibles,
-            'Gerencia General': [c for c in cargos_disponibles if c in ['salario_ceo']],
+            'Gerencia General': [c for c in cargos_disponibles if c in ['salario_ceo', 'salario_asistente_gg']],
             'Comercial': [c for c in cargos_disponibles if c in [
                 'salario_director_comercial', 'salario_gerente_ventas', 'salario_jefe_ventas',
                 'salario_ejecutivo_ventas', 'salario_analista_facturacion',
