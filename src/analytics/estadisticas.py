@@ -34,6 +34,8 @@ class EstadisticasSalariales:
             for tamano in ['Grande', 'Pyme']:
                 df_seg = self.df[self.df['categoria_tamano'] == tamano]
                 salarios = pd.to_numeric(df_seg[columna_salario], errors='coerce').dropna()
+                # Filtrar valores > 0 (0 = dato faltante)
+                salarios = salarios[salarios > 0]
 
                 if len(salarios) > 0:
                     stats[tamano] = {
@@ -51,6 +53,8 @@ class EstadisticasSalariales:
 
         # Estadísticas generales (sin segmentar)
         salarios_general = pd.to_numeric(self.df[columna_salario], errors='coerce').dropna()
+        # Filtrar valores > 0 (0 = dato faltante)
+        salarios_general = salarios_general[salarios_general > 0]
 
         if len(salarios_general) > 0:
             stats['General'] = {
