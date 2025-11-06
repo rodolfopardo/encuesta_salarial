@@ -291,23 +291,15 @@ def main():
     if cargo_seleccionado and cargo_seleccionado in stats.stats_por_cargo:
         # PARCHE: Usar valores hardcodeados si es uno de los 5 puestos específicos
         if cargo_seleccionado in HARDCODED_STATS:
+            # Obtener datos calculados correctamente para usar "General"
+            cargo_data_calculado = stats.stats_por_cargo[cargo_seleccionado]
+
             cargo_data = {
                 'nombre': HARDCODED_STATS[cargo_seleccionado]['nombre'],
                 'stats': {
                     'Grande': HARDCODED_STATS[cargo_seleccionado]['Grande'],
                     'Pyme': HARDCODED_STATS[cargo_seleccionado]['Pyme'],
-                    'General': {
-                        'P25': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P25'] +
-                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P25']) / 2,
-                        'P50': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P50'] +
-                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P50']) / 2,
-                        'P75': (HARDCODED_STATS[cargo_seleccionado]['Grande']['P75'] +
-                               HARDCODED_STATS[cargo_seleccionado]['Pyme']['P75']) / 2,
-                        'Promedio': (HARDCODED_STATS[cargo_seleccionado]['Grande']['Promedio'] +
-                                    HARDCODED_STATS[cargo_seleccionado]['Pyme']['Promedio']) / 2,
-                        'Count': (HARDCODED_STATS[cargo_seleccionado]['Grande']['Count'] +
-                                 HARDCODED_STATS[cargo_seleccionado]['Pyme']['Count'])
-                    }
+                    'General': cargo_data_calculado['stats']['General']  # Usar cálculo correcto
                 }
             }
         else:
