@@ -51,7 +51,7 @@ CARGOS_MAPPING = {
 AREAS_FUNCIONALES = {
     'Gerencia General': ['ceo'],
     'Comercial': ['director_comercial', 'gerente_ventas', 'jefe_ventas', 'ejecutivo_ventas',
-                  'analista_ecommerce', 'analista_facturacion', 'atencion_cliente'],
+                  'analista_facturacion', 'atencion_cliente'],
     'Comercio Exterior': ['gerente_comex', 'responsable_comex', 'asistente_comex'],
     'Turismo y Gastronomía': ['jefe_hospitalidad', 'guia_turismo', 'jefe_alimentos_bebidas',
                                'chef_ejecutivo', 'jefe_salon', 'gerente_ops_hotel',
@@ -74,7 +74,7 @@ AREAS_FUNCIONALES = {
                                 'tecnico_mantenimiento', 'gerente_calidad', 'jefe_calidad',
                                 'analista_calidad', 'tecnico_calidad'],
     'Higiene y Seguridad': ['responsable_sustentabilidad', 'gerente_seguridad', 'jefe_seguridad',
-                            'tecnico_seguridad', 'diseñador_grafico'],
+                            'tecnico_seguridad'],
     'Ingeniería y Proyectos': ['jefe_ingenieria', 'ingeniero_proyectos', 'asistente_proyecto',
                                'jefe_obra', 'supervisor_obra'],
     'RRHH': ['director_rrhh', 'gerente_rrhh', 'jefe_rrhh', 'responsable_liquidacion',
@@ -83,7 +83,7 @@ AREAS_FUNCIONALES = {
     'IT': ['director_it', 'gerente_it', 'jefe_desarrollo', 'programador',
            'analista_funcional', 'jefe_redes', 'tecnico_redes',
            'jefe_soporte', 'analista_helpdesk'],
-    'Marketing': ['gerente_marketing', 'jefe_marketing', 'analista_marketing'],
+    'Marketing': ['gerente_marketing', 'jefe_marketing', 'analista_marketing', 'analista_ecommerce', 'diseñador_grafico'],
     'Pasante': ['pasante', 'joven_profesional']
 }
 

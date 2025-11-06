@@ -197,7 +197,7 @@ def main():
             'Gerencia General': [c for c in cargos_disponibles if c in ['salario_ceo']],
             'Comercial': [c for c in cargos_disponibles if c in [
                 'salario_director_comercial', 'salario_gerente_ventas', 'salario_jefe_ventas',
-                'salario_ejecutivo_ventas', 'salario_analista_ecommerce', 'salario_analista_facturacion',
+                'salario_ejecutivo_ventas', 'salario_analista_facturacion',
                 'salario_atencion_cliente'
             ]],
             'Comercio Exterior': [c for c in cargos_disponibles if c in [
@@ -234,7 +234,7 @@ def main():
             ]],
             'Higiene y Seguridad': [c for c in cargos_disponibles if c in [
                 'salario_responsable_sustentabilidad', 'salario_gerente_seguridad', 'salario_jefe_seguridad',
-                'salario_tecnico_seguridad', 'salario_diseñador_grafico'
+                'salario_tecnico_seguridad'
             ]],
             'Ingeniería y Proyectos': [c for c in cargos_disponibles if c in [
                 'salario_jefe_ingenieria', 'salario_ingeniero_proyectos', 'salario_asistente_proyecto',
@@ -251,7 +251,8 @@ def main():
                 'salario_tecnico_redes', 'salario_jefe_soporte', 'salario_analista_helpdesk'
             ]],
             'Marketing': [c for c in cargos_disponibles if c in [
-                'salario_gerente_marketing', 'salario_jefe_marketing', 'salario_analista_marketing'
+                'salario_gerente_marketing', 'salario_jefe_marketing', 'salario_analista_marketing',
+                'salario_analista_ecommerce', 'salario_diseñador_grafico'
             ]],
             'Pasante': [c for c in cargos_disponibles if c in ['salario_pasante', 'salario_joven_profesional']],
         }
