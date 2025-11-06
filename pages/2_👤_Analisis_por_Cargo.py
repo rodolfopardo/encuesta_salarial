@@ -191,15 +191,70 @@ def main():
     with st.sidebar:
         st.header("Selección de Cargo")
 
-        # Selector de área funcional (opcional)
+        # Selector de área funcional (clusterización actualizada - 15 áreas)
         areas = {
             'Todos los Cargos': cargos_disponibles,
-            'Gerencia General': [c for c in cargos_disponibles if 'ceo' in c or 'asistente_gg' in c],
-            'Comercial y Ventas': [c for c in cargos_disponibles if any(x in c for x in ['ventas', 'comercial', 'ejecutivo', 'ecommerce'])],
-            'Administración y Finanzas': [c for c in cargos_disponibles if any(x in c for x in ['admin', 'conta', 'finanzas', 'impuestos'])],
-            'Recursos Humanos': [c for c in cargos_disponibles if 'rrhh' in c or 'seleccion' in c or 'capacitacion' in c or 'liquidacion' in c],
-            'Sistemas y TI': [c for c in cargos_disponibles if any(x in c for x in ['it', 'sistemas', 'programador', 'desarrollo', 'redes', 'soporte'])],
-            'Operaciones y Producción': [c for c in cargos_disponibles if any(x in c for x in ['produccion', 'operaciones', 'planta', 'calidad', 'mantenimiento'])],
+            'Gerencia General': [c for c in cargos_disponibles if c in ['salario_ceo']],
+            'Comercial': [c for c in cargos_disponibles if c in [
+                'salario_director_comercial', 'salario_gerente_ventas', 'salario_jefe_ventas',
+                'salario_ejecutivo_ventas', 'salario_analista_ecommerce', 'salario_analista_facturacion',
+                'salario_atencion_cliente'
+            ]],
+            'Comercio Exterior': [c for c in cargos_disponibles if c in [
+                'salario_gerente_comex', 'salario_responsable_comex', 'salario_asistente_comex'
+            ]],
+            'Turismo y Gastronomía': [c for c in cargos_disponibles if c in [
+                'salario_jefe_hospitalidad', 'salario_guia_turismo', 'salario_jefe_alimentos_bebidas',
+                'salario_chef_ejecutivo', 'salario_jefe_salon', 'salario_gerente_ops_hotel',
+                'salario_jefe_recepcion_hotel', 'salario_recepcionista_hotel', 'salario_concierge'
+            ]],
+            'Administración y Finanzas': [c for c in cargos_disponibles if c in [
+                'salario_director_admin_finanzas', 'salario_gerente_admin_conta', 'salario_jefe_admin_conta',
+                'salario_analista_contabilidad', 'salario_jefe_impuestos', 'salario_analista_impuestos',
+                'salario_jefe_finanzas', 'salario_analista_cuentas_pagar', 'salario_empleado_administrativo',
+                'salario_jefe_creditos_cobranzas', 'salario_analista_cobranzas', 'salario_jefe_control_gestion',
+                'salario_analista_control_gestion', 'salario_auditor_interno', 'salario_recepcionista'
+            ]],
+            'Operaciones': [c for c in cargos_disponibles if c in [
+                'salario_director_operaciones', 'salario_gerente_planta', 'salario_jefe_produccion',
+                'salario_ingeniero_procesos', 'salario_supervisor_produccion', 'salario_analista_produccion',
+                'salario_jefe_bodega', 'salario_supervisor_bodega', 'salario_gerente_agricola',
+                'salario_ingeniero_agronomo', 'salario_supervisor_fincas', 'salario_jefe_laboratorio',
+                'salario_analista_laboratorio'
+            ]],
+            'Supply Chain': [c for c in cargos_disponibles if c in [
+                'salario_gerente_supply_chain', 'salario_jefe_planificacion', 'salario_jefe_logistica',
+                'salario_analista_logistica', 'salario_supervisor_depositos', 'salario_jefe_compras',
+                'salario_gerente_compras', 'salario_comprador_analista'
+            ]],
+            'Mantenimiento y Calidad': [c for c in cargos_disponibles if c in [
+                'salario_gerente_mantenimiento', 'salario_jefe_mantenimiento', 'salario_supervisor_mantenimiento',
+                'salario_tecnico_mantenimiento', 'salario_gerente_calidad', 'salario_jefe_calidad',
+                'salario_analista_calidad', 'salario_tecnico_calidad'
+            ]],
+            'Higiene y Seguridad': [c for c in cargos_disponibles if c in [
+                'salario_responsable_sustentabilidad', 'salario_gerente_seguridad', 'salario_jefe_seguridad',
+                'salario_tecnico_seguridad', 'salario_diseñador_grafico'
+            ]],
+            'Ingeniería y Proyectos': [c for c in cargos_disponibles if c in [
+                'salario_jefe_ingenieria', 'salario_ingeniero_proyectos', 'salario_asistente_proyecto',
+                'salario_jefe_obra', 'salario_supervisor_obra'
+            ]],
+            'RRHH': [c for c in cargos_disponibles if c in [
+                'salario_director_rrhh', 'salario_gerente_rrhh', 'salario_jefe_rrhh',
+                'salario_responsable_liquidacion', 'salario_analista_admin_personal', 'salario_jefe_seleccion',
+                'salario_analista_seleccion', 'salario_analista_capacitacion'
+            ]],
+            'IT': [c for c in cargos_disponibles if c in [
+                'salario_director_it', 'salario_gerente_it', 'salario_jefe_desarrollo',
+                'salario_programador', 'salario_analista_funcional', 'salario_jefe_redes',
+                'salario_tecnico_redes', 'salario_jefe_soporte', 'salario_analista_helpdesk'
+            ]],
+            'Enología': [c for c in cargos_disponibles if c in ['salario_gerente_enologia']],
+            'Marketing': [c for c in cargos_disponibles if c in [
+                'salario_gerente_marketing', 'salario_jefe_marketing', 'salario_analista_marketing'
+            ]],
+            'Pasante': [c for c in cargos_disponibles if c in ['salario_pasante', 'salario_joven_profesional']],
         }
 
         area_seleccionada = st.selectbox(
