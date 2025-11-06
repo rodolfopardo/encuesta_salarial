@@ -2,7 +2,6 @@
   "Marca temporal": "timestamp",
   "Puntuación": "puntuacion",
   "Clasificación por RUBRO 🏭": "rubro",
-  "Clasificación por TAMAÑO (Dotación)  👥": "tamano",
   "¿Qué % de AUMENTO SALARIAL estima dar la empresa en TODO el año 2025 (Ene - Dic) para empleados fuera de convenio?": "aumento_salarial_2025_pct",
   "¿Cuantos aumentos salariales estima dar en todo el año 2025 para empleados fuera de convenio?": "cantidad_aumentos_2025",
   "¿Cual fue el % total de AUMENTO salarial ACUMULADO de Enero a Agosto 2025 para empleados fuera de convenio?": "aumento_acumulado_2025",

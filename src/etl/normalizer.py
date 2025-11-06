@@ -42,8 +42,12 @@ class EncuestaNormalizer:
                 mapping[col] = 'puntuacion'
             elif 'RUBRO' in col:
                 mapping[col] = 'rubro'
-            elif 'TAMAÑO' in col:
+            # IMPORTANTE: Columna "Tamaño" con clasificación directa Grande/Pyme
+            elif col.strip() == 'Tamaño':
                 mapping[col] = 'tamano'
+            # Columna "Clasificación por TAMAÑO (Dotación)" - NO MAPEAR (ya tenemos la columna "Tamaño")
+            elif 'Clasificación por TAMAÑO' in col:
+                pass  # No mapear esta columna
 
             # Proyecciones y empleo
             elif 'AUMENTO SALARIAL estima dar la empresa en TODO el año 2025' in col:
@@ -423,12 +427,11 @@ class EncuestaNormalizer:
         for col in salary_columns:
             self.df_normalized.loc[:, col] = self.df_normalized[col].replace(0, np.nan)
 
-        # Limpiar columnas de tamaño
-        if 'tamano' in self.df_normalized.columns:
-            self.df_normalized['categoria_tamano'] = self.df_normalized['tamano'].apply(
-                lambda x: 'Grande' if x in ['201 - 500 empleados', '+ 500 empleados']
-                else ('Pyme' if x in ['1 - 50 empleados', '51 - 200 empleados'] else 'Otro')
-            )
+        # Clasificación por tamaño:
+        # Filas 1-20 (índices 0-19): Grande
+        # Filas 21+ (índices 20+): Pyme
+        self.df_normalized['categoria_tamano'] = 'Pyme'  # Por defecto todas son Pyme
+        self.df_normalized.loc[0:19, 'categoria_tamano'] = 'Grande'  # Primeras 20 filas son Grande
 
         # Limpiar y unificar rubros
         if 'rubro' in self.df_normalized.columns:
