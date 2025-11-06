@@ -84,7 +84,7 @@ AREAS_FUNCIONALES = {
     'Sistemas y TI': ['director_it', 'gerente_it', 'jefe_desarrollo', 'programador',
                       'analista_funcional', 'jefe_redes', 'tecnico_redes',
                       'jefe_soporte', 'analista_helpdesk'],
-    'Otros': ['joven_profesional', 'pasante', 'diseñador_grafico', 'responsable_sustentabilidad']
+    'Otras Áreas': ['joven_profesional', 'pasante', 'diseñador_grafico', 'responsable_sustentabilidad']
 }
 
 # Beneficios monetarios
