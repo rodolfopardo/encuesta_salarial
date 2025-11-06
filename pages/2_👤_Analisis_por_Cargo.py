@@ -220,7 +220,7 @@ def main():
                 'salario_ingeniero_procesos', 'salario_supervisor_produccion', 'salario_analista_produccion',
                 'salario_jefe_bodega', 'salario_supervisor_bodega', 'salario_gerente_agricola',
                 'salario_ingeniero_agronomo', 'salario_supervisor_fincas', 'salario_jefe_laboratorio',
-                'salario_analista_laboratorio'
+                'salario_analista_laboratorio', 'salario_gerente_enologia'
             ]],
             'Supply Chain': [c for c in cargos_disponibles if c in [
                 'salario_gerente_supply_chain', 'salario_jefe_planificacion', 'salario_jefe_logistica',
@@ -250,7 +250,6 @@ def main():
                 'salario_programador', 'salario_analista_funcional', 'salario_jefe_redes',
                 'salario_tecnico_redes', 'salario_jefe_soporte', 'salario_analista_helpdesk'
             ]],
-            'Enología': [c for c in cargos_disponibles if c in ['salario_gerente_enologia']],
             'Marketing': [c for c in cargos_disponibles if c in [
                 'salario_gerente_marketing', 'salario_jefe_marketing', 'salario_analista_marketing'
             ]],

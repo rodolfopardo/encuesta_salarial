@@ -66,7 +66,7 @@ AREAS_FUNCIONALES = {
     'Operaciones': ['director_operaciones', 'gerente_planta', 'jefe_produccion',
                     'ingeniero_procesos', 'supervisor_produccion', 'analista_produccion',
                     'jefe_bodega', 'supervisor_bodega', 'gerente_agricola', 'ingeniero_agronomo',
-                    'supervisor_fincas', 'jefe_laboratorio', 'analista_laboratorio'],
+                    'supervisor_fincas', 'jefe_laboratorio', 'analista_laboratorio', 'gerente_enologia'],
     'Supply Chain': ['gerente_supply_chain', 'jefe_planificacion', 'jefe_logistica',
                      'analista_logistica', 'supervisor_depositos', 'jefe_compras',
                      'gerente_compras', 'comprador_analista'],
@@ -83,7 +83,6 @@ AREAS_FUNCIONALES = {
     'IT': ['director_it', 'gerente_it', 'jefe_desarrollo', 'programador',
            'analista_funcional', 'jefe_redes', 'tecnico_redes',
            'jefe_soporte', 'analista_helpdesk'],
-    'Enología': ['gerente_enologia'],
     'Marketing': ['gerente_marketing', 'jefe_marketing', 'analista_marketing'],
     'Pasante': ['pasante', 'joven_profesional']
 }
