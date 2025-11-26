@@ -68,10 +68,11 @@ class EncuestaNormalizer:
                 mapping[col] = 'rotacion_2025_pct'
 
             # Salarios por cargo
-            elif 'CEO / GERENTE GENERAL' in col or 'GERENTE GENERAL' in col:
-                mapping[col] = 'salario_ceo'
+            # IMPORTANTE: Asistente GG debe evaluarse ANTES que CEO/Gerente General
             elif 'ASISTENTE DE GERENTE GENERAL' in col:
                 mapping[col] = 'salario_asistente_gg'
+            elif 'CEO / GERENTE GENERAL' in col or 'GERENTE GENERAL' in col:
+                mapping[col] = 'salario_ceo'
             elif 'DIRECTOR COMERCIAL' in col:
                 mapping[col] = 'salario_director_comercial'
             elif 'GERENTE DE VENTAS' in col:
