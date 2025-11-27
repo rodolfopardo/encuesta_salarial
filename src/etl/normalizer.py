@@ -22,7 +22,8 @@ class EncuestaNormalizer:
     def load_data(self):
         """Carga el CSV raw"""
         print("Cargando datos...")
-        self.df_raw = pd.read_csv(self.csv_path)
+        # Cargar con separador ; (punto y coma) y como strings para manejar formato argentino
+        self.df_raw = pd.read_csv(self.csv_path, sep=';', dtype=str, keep_default_na=False)
         print(f"✓ Datos cargados: {self.df_raw.shape[0]} filas, {self.df_raw.shape[1]} columnas")
         return self
 
@@ -41,8 +42,12 @@ class EncuestaNormalizer:
                 mapping[col] = 'puntuacion'
             elif 'RUBRO' in col:
                 mapping[col] = 'rubro'
-            elif 'TAMAÑO' in col:
+            # IMPORTANTE: Columna "Tamaño" con clasificación directa Grande/Pyme
+            elif col.strip() == 'Tamaño':
                 mapping[col] = 'tamano'
+            # Columna "Clasificación por TAMAÑO (Dotación)" - NO MAPEAR (ya tenemos la columna "Tamaño")
+            elif 'Clasificación por TAMAÑO' in col:
+                pass  # No mapear esta columna
 
             # Proyecciones y empleo
             elif 'AUMENTO SALARIAL estima dar la empresa en TODO el año 2025' in col:
@@ -63,10 +68,11 @@ class EncuestaNormalizer:
                 mapping[col] = 'rotacion_2025_pct'
 
             # Salarios por cargo
-            elif 'CEO / GERENTE GENERAL' in col or 'GERENTE GENERAL' in col:
-                mapping[col] = 'salario_ceo'
+            # IMPORTANTE: Asistente GG debe evaluarse ANTES que CEO/Gerente General
             elif 'ASISTENTE DE GERENTE GENERAL' in col:
                 mapping[col] = 'salario_asistente_gg'
+            elif 'CEO / GERENTE GENERAL' in col or 'GERENTE GENERAL' in col:
+                mapping[col] = 'salario_ceo'
             elif 'DIRECTOR COMERCIAL' in col:
                 mapping[col] = 'salario_director_comercial'
             elif 'GERENTE DE VENTAS' in col:
@@ -382,12 +388,30 @@ class EncuestaNormalizer:
             self.df_normalized = self.df_normalized.drop(columns=duplicated_cols)
 
         # Convertir salarios a numérico - columna por columna
+        # Manejar formato argentino: punto como separador de miles (ej: 500.000)
         salary_columns = [col for col in self.df_normalized.columns if col.startswith('salario_')]
 
         count = 0
         for col in salary_columns:
             try:
-                self.df_normalized.loc[:, col] = pd.to_numeric(self.df_normalized[col], errors='coerce')
+                # Primero convertir strings con punto como separador de miles
+                def convert_salary(val):
+                    if pd.isna(val):
+                        return np.nan
+                    if isinstance(val, (int, float)):
+                        return float(val)
+                    # Si es string, quitar puntos (separador de miles) y convertir
+                    val_str = str(val).strip()
+                    # Quitar puntos que son separadores de miles
+                    val_str = val_str.replace('.', '')
+                    # Reemplazar coma por punto si existe (separador decimal)
+                    val_str = val_str.replace(',', '.')
+                    try:
+                        return float(val_str)
+                    except:
+                        return np.nan
+
+                self.df_normalized.loc[:, col] = self.df_normalized[col].apply(convert_salary)
                 count += 1
             except Exception as e:
                 print(f"  Warning: No se pudo convertir {col}: {e}")
@@ -399,17 +423,14 @@ class EncuestaNormalizer:
         """Limpia y prepara los datos"""
         print("\nLimpiando datos...")
 
-        # Reemplazar 0 con NaN en salarios (0 = no tienen ese puesto) - columna por columna
-        salary_columns = [col for col in self.df_normalized.columns if col.startswith('salario_')]
-        for col in salary_columns:
-            self.df_normalized.loc[:, col] = self.df_normalized[col].replace(0, np.nan)
+        # NO reemplazar 0 con NaN - los 0 son valores válidos en nuevadata.csv
+        # (representan empresas que sí tienen el puesto pero con sueldo 0 o dato faltante)
 
-        # Limpiar columnas de tamaño
-        if 'tamano' in self.df_normalized.columns:
-            self.df_normalized['categoria_tamano'] = self.df_normalized['tamano'].apply(
-                lambda x: 'Grande' if x in ['201 - 500 empleados', '+ 500 empleados']
-                else ('Pyme' if x in ['1 - 50 empleados', '51 - 200 empleados'] else 'Otro')
-            )
+        # Clasificación por tamaño (según nuevadata.csv):
+        # Filas 1-18 (índices 0-17): Grande (18 empresas)
+        # Filas 19+ (índices 18+): Pyme (50 empresas)
+        self.df_normalized['categoria_tamano'] = 'Pyme'  # Por defecto todas son Pyme
+        self.df_normalized.loc[0:17, 'categoria_tamano'] = 'Grande'  # Primeras 18 filas son Grande
 
         # Limpiar y unificar rubros
         if 'rubro' in self.df_normalized.columns:
