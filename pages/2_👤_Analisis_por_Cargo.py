@@ -447,6 +447,14 @@ def main():
     st.markdown("""
         <div style='text-align: center; color: #666; padding: 1rem 0;'>
             <p><strong>Perfil Humano</strong> - Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
+            <div style='margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #ddd;'>
+                <a href='https://www.identidadcentral.com' target='_blank' style='text-decoration: none;'>
+                    <img src='https://www.identidadcentral.com/favicon.png' width='40' style='border-radius: 50%;'>
+                </a>
+                <p style='font-size: 0.85rem; margin-top: 0.5rem;'>
+                    Desarrollado por <a href='https://www.identidadcentral.com' target='_blank' style='color: #2563eb; text-decoration: none; font-weight: bold;'>Identidad Central</a>
+                </p>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 

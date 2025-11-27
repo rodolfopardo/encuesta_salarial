@@ -267,7 +267,14 @@ def main():
         <div style='text-align: center; color: #666; padding: 2rem 0;'>
             <p><strong>Perfil Humano - Búsquedas Estratégicas</strong></p>
             <p>Encuesta Salarial 2do Semestre 2025 (10ma Edición)</p>
-            <p style='font-size: 0.9rem;'>Desarrollado por Rodolfo Pardo para Perfil Humano</p>
+            <div style='margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;'>
+                <a href='https://www.identidadcentral.com' target='_blank' style='text-decoration: none;'>
+                    <img src='https://www.identidadcentral.com/favicon.png' width='50' style='border-radius: 50%; margin-bottom: 0.5rem;'>
+                </a>
+                <p style='font-size: 0.9rem; margin-top: 0.5rem;'>
+                    Desarrollado por <a href='https://www.identidadcentral.com' target='_blank' style='color: #2563eb; text-decoration: none; font-weight: bold;'>Identidad Central</a>
+                </p>
+            </div>
         </div>
     """, unsafe_allow_html=True)
 
